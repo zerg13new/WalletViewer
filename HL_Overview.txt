@@ -1,0 +1,61 @@
+
+/**
+ High level overview of programm:
+ there are main class to read content.xml file and service functions-algorihtms
+ to process results. Additionally programm must write outputs to file for quick
+ handling in any Text Processor like OpenOffice.
+
+ => open file
+   => read content.xml
+     => call algorithm function to get statistic
+     => write to screen or to file
+
+*/
+
+
+common types:
+  /**
+   xml row fromtable from content.xml file
+  */
+  struct xmlRow
+
+  /**
+   returned value format for statistic
+  */
+  struct cashFlow
+
+
+/**
+ =================================
+ For reading content of *.ods file
+*/
+class ODSReader
+
+
+/**
+ =================================
+ For reading content.xml file from *.ods file
+*/
+class ContentReader: public ODSReader
+
+
+/**
+ algorithms for statistic
+*/
+statistic:
+/**
+ return sorted montly inflow/outflow
+*/
+montlySimple: vector<cashFlow>
+
+/**
+  return sorted yearly inflow/outflow
+*/
+yearlySimple: vector<cashFlow>
+
+/**
+ return number of most expensive items from source
+*/
+mostExpensiveItems: vector <cashFlow>
+
+
