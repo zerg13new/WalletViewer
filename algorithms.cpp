@@ -26,7 +26,7 @@
 /**
   ROUTINES
 */
-static int safe_create_dir(const char *dir);
+static int safe_create_dir(const string &sPath);
 
 
 /**
@@ -59,6 +59,7 @@ vector<cashFlow> mostExpensiveItems(vector<xmlRow>, unsigned int numberofItemsTo
 
 int extract_zip(const char *archive, const char *destination)
 {
+  const string ME_("extract_zip");
   struct zip      *za;
   struct zip_file *zf;
   struct zip_stat sb;
@@ -66,56 +67,57 @@ int extract_zip(const char *archive, const char *destination)
   int             err;
   int             i, len;
   int             fd;
-  long long       sum;
-
-  const int size = 1024;
-  char tt [size] = "";
-  getcwd(tt, size);
-  printf("current dir is %s \n", tt);
+  zip_uint64_t    sum;
 
   if((za = zip_open(archive, 0, &err)) == NULL)
   {
       zip_error_to_str(buf, sizeof(buf), err, errno);
-      fprintf(stderr, "%s: can't open zip archive `%s': %s/n", archive,
-          archive, buf);
+      cerr << ME_ << ": can't open zip archive " << archive
+           << ", buf " << buf;
       return 1;
   }
  
   for(i = 0; i < zip_get_num_entries(za, 0); i++)
   {
-    if(zip_stat_index(za, i, 0, &sb) == 0)
+    if( zip_stat_index(za, i, 0, &sb) )
     {
-      printf("==================\n");
+      cerr << ME_ << ": zip_stat_index failed" << endl;
+    }
+    else
+    {
+      cout << "==================" << endl;
       len = strlen(sb.name);
-      printf("Name: [%s], \n", sb.name);
-      printf("Size: [%llu], \n", sb.size);
-      printf("mtime: [%u]\n", (unsigned int)sb.mtime);
+      cout << "Name: " << sb.name << endl;
+      cout << "Size:" << sb.size << endl;
+      cout << "mtime: " << (unsigned int)sb.mtime << endl;
 
-      if(sb.name[len - 1] == '/')
+      // create directory if it is necessary
+      if( strstr(sb.name, "/") )
       {
         string tmpDir(destination);
-        tmpDir.append(sb.name);
+        tmpDir.append("/").append(sb.name);
 
-        printf("debug: sb.name = %s, destination = %s, tmpDir = %s",
-               sb.name, destination, tmpDir.c_str());
-
-        if( safe_create_dir(tmpDir.c_str()) )
-          return 99;
+        if( safe_create_dir(tmpDir) )
+          return 2;
       }
       else
       {
         zf = zip_fopen_index(za, i, 0);
         if(!zf)
         {
-          fprintf(stderr, "boese, boese\n");
-          return 100;
+          cerr << ME_ << ": zip_fopen_index failed, zf = " << zf << endl;
+          return 3;
         }
 
-        fd = open(sb.name, O_RDWR | O_TRUNC | O_CREAT, 0644);
+        string fullPathFileName(destination);
+        fullPathFileName.append("/").append(sb.name);
+
+        fd = open(fullPathFileName.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0644);
         if(fd < 0)
         {
-          fprintf(stderr, "boese, boese\n");
-          return 101;
+          cerr << ME_ << ": open file " << fullPathFileName.c_str()
+               << " from archive " << archive << " failed, fd = " << fd << endl;
+          return 4;
         }
 
         sum = 0;
@@ -124,8 +126,8 @@ int extract_zip(const char *archive, const char *destination)
           len = zip_fread(zf, buf, 100);
           if(len < 0)
           {
-            fprintf(stderr, "boese, boese\n");
-            return 102;
+            cerr << ME_ << ": zip_fread failed, len = " << len << endl;
+            return 5;
           }
           write(fd, buf, len);
           sum += len;
@@ -134,34 +136,42 @@ int extract_zip(const char *archive, const char *destination)
         zip_fclose(zf);
       } // END if(sb.name
 
-    }
-    else
-    {
-      printf("File[%s] Line[%d]\n", __FILE__, __LINE__);
     } // END if(zip_stat_index
 
   } // END for(i = 0
  
   if(zip_close(za) == -1)
   {
-    fprintf(stderr, "%s: can't close zip archive `%s'\n", archive, archive);
-    return 1;
+    cerr << ME_ << ": can't close zip archive " << archive << endl;
+    return 10;
   }
 
   return 0;
 }
 
 
-static int safe_create_dir(const char *dir)
+static int safe_create_dir(const string &sPath)
 {
-    if(mkdir(dir, 0755) < 0)
+  const string ME_ = "safe_create_dir";
+
+  int          pos = 1;
+
+  while( string::npos != (pos = sPath.find("/", pos)) )
+  {
+    string tmpPath(string(sPath, 0, pos));
+    cout << "path" << tmpPath << endl;
+    pos++;
+
+    if(mkdir(tmpPath.c_str(), 0755) < 0)
     {
       if(errno != EEXIST)
       {
-        perror(dir);
+        cerr << ME_ << ": mkdir failed for " << tmpPath.c_str() << endl;
         return 1;
       }
     }
+
+  }
 
     return 0;
 }

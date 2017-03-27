@@ -23,6 +23,7 @@
 #ifndef _ALGORITHMS_H_H
 #define _ALGORITHMS_H_H
 
+#include <iostream>
 #include <vector>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -32,6 +33,10 @@
 #include "common_types.h"
 
 using std::vector;
+using std::cout;
+using std::cin;
+using std::cerr;
+using std::endl;
 using boost::gregorian::date;
 
 /**

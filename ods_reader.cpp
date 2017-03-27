@@ -59,6 +59,9 @@ ODSReader::ODSReader(const string _odsFileName)
   // extract ods file to temp directory
   if( extract_zip(_odsFileName.c_str(), tmpDir.string().c_str()) )
   {
+    // cleanup extracted files
+    remove_all(tmpDir);
+
     string errorMessage = FUNC_.append(": can't extract file ").append(_odsFileName)
                                .append(" to temp directory ").append(tmpDir.string());
     throw runtime_error(errorMessage);

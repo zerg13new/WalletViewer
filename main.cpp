@@ -28,6 +28,7 @@
 
 using std::cout;
 using std::cin;
+using std::cerr;
 using std::endl;
 using std::exception;
 using std::string;
@@ -42,7 +43,7 @@ int main()
 
   cout << "Start main" << endl;
 
-  ODSReader("/home/xxx/Work/payment_test/payment_test.ods");
+  ODSReader("/home/xxx/Work/payment_cli/test.ods");
 
   return 0;
 }
