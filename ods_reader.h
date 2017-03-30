@@ -38,28 +38,65 @@ using boost::filesystem::exists;
 using boost::filesystem::remove_all;
 
 /**
- For reading content of *.ods file
-*/
+ * @brief The ODSReader class for extracting content of *.ods file in
+ *        temp directory for further processing
+ */
 class ODSReader
 {
   public:
+    /**
+      * @brief ODSReader main constructor to initialize class instance.
+      *        Can raise exception of runtime_error class
+      * @param _odsFileName full path to *.ods file name
+      *        e.g. /tmp/test.ods
+      */
     ODSReader(const string _odsFileName);
+
+    /**
+      * @brief ~ODSReader remove tmpDir
+      */
     virtual ~ODSReader();
+
+    /**
+     * @brief getODSFileName return odsFileName
+     * @return odsFileName
+     */
     string getODSFileName() const;
-    string getTmpDir() const;
+    /**
+     * @brief getPathToODS
+     * @return path to extracted odsFileName file
+     */
+    string getPathToODS() const;
 
   private:
+    /**
+     * @brief ODSReader default constructor isn't used somehow
+     */
     explicit ODSReader();
+
+    /**
+     * @brief ODSReader copy constructor isn't used somehow
+     * @param obj
+     */
     explicit ODSReader(const ODSReader &obj);
 
     /**
-      extract ods file
-    */
-    void extractFile();
+     * @brief extractFile Service function to extract ods file.
+     *                    Can raise exception of runtime_error class
+     */
+    void extractFile() const;
 
   protected:
+    /**
+     * @brief odsFileName filename of processd file
+     */
     string odsFileName;
-    string tmpDir; // path (with trailed /) to tmpDir where *.ods file is placed
+
+    /**
+     * @brief full path (without trailed /) to temp dir where *.ods file
+     *        was extracted
+     */
+    string pathToExtractedODS;
 };
 
 #endif

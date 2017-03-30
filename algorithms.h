@@ -40,25 +40,49 @@ using std::endl;
 using boost::gregorian::date;
 
 /**
-  return sorted montly inflow/outflow
-*/
-vector<cashFlow> montlySimple(vector<xmlRow>, date fromDate = date(1970, 01, 01),
-                                     date toDate = date(2100, 01, 01));
+ * @brief montlySimple calculate cashflow for every month for perioud of time
+ *        from fromDate to toDate in vector notes
+ * @param notes data from ods file to process
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return sorted vector of cashFlow elements for every month for requested perioud
+ */
+vector<cashFlow> montlySimple(vector<xmlRow> notes,
+                              date fromDate = date(1970, 01, 01),
+                              date toDate = date(2100, 01, 01));
+
 
 /**
-  return sorted yearly inflow/outflow
-*/
-vector<cashFlow> yearlySimple(vector<xmlRow>, date fromDate = date(1970, 01, 01),
-                                     date to = date(1970, 01, 01));
+ * @brief yearlySimple calculate cashflow for every year for perioud of time
+ *        from fromDate to toDate in vector notes
+ * @param notes data from ods file to process
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return sorted vector of cashFlow elements for every year for requested perioud
+ */
+vector<cashFlow> yearlySimple(vector<xmlRow> notes,
+                              date fromDate = date(1970, 01, 01),
+                              date toDate = date(1970, 01, 01));
+
 
 /**
-  return number of most expensive items from source
-*/
-vector<cashFlow> mostExpensiveItems(vector<xmlRow>, unsigned int numberofItemsToReturn = 1);
+ * @brief mostExpensiveItems return number of most expensive items from notes
+ * @param notes notes data from ods file to process
+ * @param numberofItemsToReturn number of item to return
+ * @return sorted vector of numberofItemsToReturn most expensive elements
+ */
+vector<cashFlow> mostExpensiveItems(vector<xmlRow> notes,
+                                    unsigned int numberofItemsToReturn = 1);
+
 
 /**
-  extract files from *.zip archive to destination folder
-*/
+ * @brief extract_zip Extract files from *.zip archive to destination folder
+ * @param archive fill absolete path to arhcieve with archieve name
+ *        E.x. \tmp\test.ods
+ * @param destination full path to destination folder where files will be
+ *        extracted
+ * @return 0 for success or other positive value for failure
+ */
 int extract_zip(const char *zipArchiveName, const char *destination);
 
 #endif

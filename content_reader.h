@@ -38,11 +38,16 @@ using boost::property_tree::ptree;
 
 
 /**
- For reading content.xml file from *.ods file
-*/
+ * @brief The ContentReader class For reading content.xml file from *.ods file
+ */
 class ContentReader: public ODSReader
 {
   public:
+  /**
+     * @brief ContentReader main constructor
+     * @param _odsFileName full path to ods.file
+     *         e.g. /tmp/test.ods
+     */
     ContentReader(const string _odsFileName);
     virtual ~ContentReader();
 

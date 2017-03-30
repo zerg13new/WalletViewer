@@ -18,59 +18,65 @@
 */
 
 #include "ods_reader.h"
-/*
-#if defined LINUX
-  #define DELIM \\\\
-#elif defined WINDOWS
-  #define DELIM  ////
-#endif
-*/
+
 ODSReader::ODSReader(const string _odsFileName)
  :odsFileName(_odsFileName) // should be full absolute path
 {
-  string FUNC_  = "ODSReader::ODSReader(const string _odsFileName)";
+  const string FUNC_  = "ODSReader::ODSReader(const string _odsFileName)";
   path tmpDir   = temp_directory_path();
   path uniqPath = unique_path();
 
   // make uniq path for temp directory
   tmpDir /= uniqPath;
 
+  // finish object initialization
+  pathToExtractedODS = tmpDir.string();
+
   // check file exists
   if( !exists(_odsFileName) )
   {
-    string errorMessage = FUNC_.append(": file doesn't exist ").append(_odsFileName);
+    string errorMessage = string(FUNC_).append(": file doesn't exist ")
+                          .append(_odsFileName);
     throw runtime_error(errorMessage);
   }
 
   // check temporary folder doesn't exist
   if( exists(tmpDir) )
   {
-    string errorMessage = FUNC_.append(": temp doesn't' already exist ").append(tmpDir.string());
+    string errorMessage = string(FUNC_).append(": temp doesn't' already exist ")
+                          .append(tmpDir.string());
     throw runtime_error(errorMessage);
   }
 
   // create temporary directory
   if(!create_directories(tmpDir))
   {
-    string errorMessage = FUNC_.append(": can't create directory ").append(tmpDir.string());
+    string errorMessage = string(FUNC_).append(": can't create directory ")
+                          .append(tmpDir.string());
     throw runtime_error(errorMessage);
   }
 
   // extract ods file to temp directory
-  if( extract_zip(_odsFileName.c_str(), tmpDir.string().c_str()) )
-  {
-    // cleanup extracted files
-    remove_all(tmpDir);
+  extractFile();
 
-    string errorMessage = FUNC_.append(": can't extract file ").append(_odsFileName)
-                               .append(" to temp directory ").append(tmpDir.string());
-    throw runtime_error(errorMessage);
-  }
 }
 
 
-void ODSReader::extractFile()
+void ODSReader::extractFile() const
 {
+  const string FUNC_  = "ODSReader::extractFile() const";
+
+  // extract ods file to temp directory
+  if( extract_zip(odsFileName.c_str(), pathToExtractedODS.c_str()) )
+  {
+    // cleanup extracted files
+    remove_all(pathToExtractedODS);
+
+    string errorMessage = string(FUNC_).append(": can't extract file ")
+                          .append(odsFileName).append(" to temp directory ")
+                          .append(pathToExtractedODS);
+    throw runtime_error(errorMessage);
+  }
 }
 
 
@@ -80,15 +86,15 @@ string ODSReader::getODSFileName() const
 }
 
 
-string ODSReader::getTmpDir() const
+string ODSReader::getPathToODS() const
 {
-    return tmpDir;
+    return pathToExtractedODS;
 }
 
 
 ODSReader::~ODSReader()
 {
-  remove_all(tmpDir);
+  remove_all(pathToExtractedODS);
 }
 
 #undef DELIM

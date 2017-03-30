@@ -29,33 +29,25 @@
 static int safe_create_dir(const string &sPath);
 
 
-/**
- return sorted montly inflow/outflow
-*/
+
 vector<cashFlow> montlySimple(vector<xmlRow>, date from, date to)
 {
 
 }
 
-/**
-  return sorted yearly inflow/outflow
-*/
+
 vector<cashFlow> yearlySimple(vector<xmlRow>, date from, date to)
 {
 
 }
 
-/**
- return number of most expensive items from source
-*/
+
 vector<cashFlow> mostExpensiveItems(vector<xmlRow>, unsigned int numberofItemsToReturn)
 {
 
 }
 
 
-/**
-*/
 
 int extract_zip(const char *archive, const char *destination)
 {
@@ -85,11 +77,13 @@ int extract_zip(const char *archive, const char *destination)
     }
     else
     {
-      cout << "==================" << endl;
-      len = strlen(sb.name);
-      cout << "Name: " << sb.name << endl;
-      cout << "Size:" << sb.size << endl;
-      cout << "mtime: " << (unsigned int)sb.mtime << endl;
+      /*
+      cout << endl
+           << "Name: " << sb.name << endl
+           << "Size:" << sb.size << endl
+           << "mtime: " << (unsigned int)sb.mtime
+           << endl;
+           */
 
       // create directory if it is necessary
       if( strstr(sb.name, "/") )
@@ -149,7 +143,11 @@ int extract_zip(const char *archive, const char *destination)
   return 0;
 }
 
-
+/**
+ * @brief safe_create_dir is a function create absent directories in sPath
+ * @param sPath path without trailed "/"
+ * @return 0 for success or other positive value for failure
+ */
 static int safe_create_dir(const string &sPath)
 {
   const string ME_ = "safe_create_dir";
@@ -159,7 +157,6 @@ static int safe_create_dir(const string &sPath)
   while( string::npos != (pos = sPath.find("/", pos)) )
   {
     string tmpPath(string(sPath, 0, pos));
-    cout << "path" << tmpPath << endl;
     pos++;
 
     if(mkdir(tmpPath.c_str(), 0755) < 0)
