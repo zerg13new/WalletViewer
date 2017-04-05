@@ -27,6 +27,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/date_time/gregorian/greg_date.hpp>
+#include <boost/lexical_cast/bad_lexical_cast.hpp>
 
 #include "common_types.h"
 #include "ods_reader.h"
@@ -35,6 +36,8 @@ using std::string;
 using std::vector;
 using std::pair;
 using boost::property_tree::ptree;
+using boost::property_tree::ptree_bad_path;
+using boost::bad_lexical_cast;
 
 
 /**
@@ -42,6 +45,7 @@ using boost::property_tree::ptree;
  */
 class ContentReader: public ODSReader
 {
+  friend ostream& operator <<(ostream &os, const xmlRow &row);
   public:
   /**
      * @brief ContentReader main constructor
@@ -49,29 +53,50 @@ class ContentReader: public ODSReader
      *         e.g. /tmp/test.ods
      */
     ContentReader(const string _odsFileName);
+
     virtual ~ContentReader();
 
     /**
-      get content file name
-    */
+     * @brief getContentName Get content file name
+     * @return content.xml string
+     */
     string getContentName() const;
 
     /**
-      get list of tables from content.xml file
-    */
+     * @brief getTablesList Get list of tables from content.xml file.
+     *        E.g. Dave, Adriana
+     * @return vector of table names string
+     */
     vector<string> getTablesList() const;
 
     /**
-     get table in vector view to process futher
-    */
-    vector<xmlRow> getTable() const;
+     * @brief getTableData getTable Get data from tableName to further processing
+     * @param tableName name of table to be read
+     * @return vector of xmlRow
+     */
+    vector<xmlRow> getTableData(const string tableName) const;
 
   private:
+    /**
+     * @brief ContentReader default constructor isn't used somehow
+     */
     explicit ContentReader();
+
+    /**
+     * @brief ContentReader copy constructor isn't used somehow
+     * @param obj
+     */
     explicit ContentReader(const ContentReader &obj);
 
   protected:
+    /**
+     * @brief contentFileName content.xml
+     */
     const string contentFileName;
+
+    /**
+     * @brief tree special object contain the hole content.xml tree
+     */
     ptree tree;
 };
 

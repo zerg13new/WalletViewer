@@ -30,23 +30,51 @@ static int safe_create_dir(const string &sPath);
 
 
 
-vector<cashFlow> montlySimple(vector<xmlRow>, date from, date to)
+vector<cashFlow> montlySimple(const vector<xmlRow> &data, date from, date to)
 {
 
 }
 
 
-vector<cashFlow> yearlySimple(vector<xmlRow>, date from, date to)
+vector<cashFlow> yearlySimple(const vector<xmlRow> &data, date from, date to)
 {
 
 }
 
 
-vector<cashFlow> mostExpensiveItems(vector<xmlRow>, unsigned int numberofItemsToReturn)
+vector<cashFlow> mostExpensiveItems(const vector<xmlRow> &data, unsigned int numberofItemsToReturn)
 {
 
 }
 
+
+ostream &operator <<(ostream &os, const xmlRow &row)
+{
+    os << "cashFlow: " << row.cashflow << endl
+       << "source: " << row.source << endl
+       << "dateP: " << to_iso_extended_string(row.dateP) << endl
+       << "item: " << row.item << endl
+       << "price: " << row.price << endl
+       << "amount: " << row.amount;
+
+    return os;
+}
+
+
+void sortDateSource(vector<xmlRow> &rows, const int sortOrder)
+{
+  if( 1 == sortOrder )
+    sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
+          return ( a.dateP != b.dateP ) ? (a.dateP < b.dateP) : (a.source < b.source);
+        });
+  else if( 2 == sortOrder )
+    sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
+          return ( a.dateP != b.dateP ) ? (a.dateP < b.dateP) : (a.source < b.source);
+        });
+  else
+    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+         << "ERROR: unknown order";
+}
 
 
 int extract_zip(const char *archive, const char *destination)
@@ -152,7 +180,7 @@ static int safe_create_dir(const string &sPath)
 {
   const string ME_ = "safe_create_dir";
 
-  int          pos = 1;
+  size_t          pos = 1;
 
   while( string::npos != (pos = sPath.find("/", pos)) )
   {

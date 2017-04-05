@@ -27,10 +27,16 @@
 #include <string>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/date_time/gregorian/greg_date.hpp>
+#include <boost/date_time/gregorian/parsers.hpp>
+#include <boost/date_time/gregorian/formatters.hpp>
 
 using std::string;
 using boost::property_tree::ptree;
 using boost::gregorian::date;
+using boost::gregorian::from_string;
+using boost::gregorian::to_iso_extended_string;
+
+const unsigned int numCellsInRow = 6;
 
 
 /**

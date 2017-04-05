@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <zip.h>
 #include <boost/date_time/gregorian/greg_date.hpp>
+#include <algorithm>
 #include "common_types.h"
 
 using std::vector;
@@ -37,41 +38,48 @@ using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
+using std::ostream;
+using std::sort;
+using std::string;
 using boost::gregorian::date;
+
+
+const string cashFlowList [] = { "приход", "расход" };
+
 
 /**
  * @brief montlySimple calculate cashflow for every month for perioud of time
- *        from fromDate to toDate in vector notes
- * @param notes data from ods file to process
+ *        from fromDate to toDate in vector data
+ * @param data from ods file to process
  * @param fromDate low date bound of processed data
  * @param toDate up date bound of processed data
  * @return sorted vector of cashFlow elements for every month for requested perioud
  */
-vector<cashFlow> montlySimple(vector<xmlRow> notes,
+vector<cashFlow> montlySimple(const vector<xmlRow> &data,
                               date fromDate = date(1970, 01, 01),
                               date toDate = date(2100, 01, 01));
 
 
 /**
  * @brief yearlySimple calculate cashflow for every year for perioud of time
- *        from fromDate to toDate in vector notes
- * @param notes data from ods file to process
+ *        from fromDate to toDate in vector data
+ * @param data from ods file to process
  * @param fromDate low date bound of processed data
  * @param toDate up date bound of processed data
  * @return sorted vector of cashFlow elements for every year for requested perioud
  */
-vector<cashFlow> yearlySimple(vector<xmlRow> notes,
+vector<cashFlow> yearlySimple(const vector<xmlRow> &data,
                               date fromDate = date(1970, 01, 01),
                               date toDate = date(1970, 01, 01));
 
 
 /**
- * @brief mostExpensiveItems return number of most expensive items from notes
- * @param notes notes data from ods file to process
+ * @brief mostExpensiveItems return number of most expensive items from data
+ * @param data data from ods file to process
  * @param numberofItemsToReturn number of item to return
  * @return sorted vector of numberofItemsToReturn most expensive elements
  */
-vector<cashFlow> mostExpensiveItems(vector<xmlRow> notes,
+vector<cashFlow> mostExpensiveItems(const vector<xmlRow> &data,
                                     unsigned int numberofItemsToReturn = 1);
 
 
@@ -84,5 +92,22 @@ vector<cashFlow> mostExpensiveItems(vector<xmlRow> notes,
  * @return 0 for success or other positive value for failure
  */
 int extract_zip(const char *zipArchiveName, const char *destination);
+
+
+/**
+ * @brief operator << Function to output xmlRow struct
+ * @param os output stream
+ * @param row xmlRow struct
+ * @return ref to output stream
+ */
+ostream &operator <<(ostream &os, const xmlRow &row);
+
+/**
+ * @brief sortDateSource Function to sort vector of xml rows in order
+ *        by date + source
+ * @param rows vector of xmlRow rows to sort
+ * @param sortOrder 1 - ascending (default), 2 - descending
+ */
+void sortDateSource(vector<xmlRow> &rows, const int sortOrder = 1);
 
 #endif
