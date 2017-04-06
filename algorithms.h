@@ -31,9 +31,15 @@
 #include <zip.h>
 #include <boost/date_time/gregorian/greg_date.hpp>
 #include <algorithm>
+#include <map>
+#include <list>
+#include <cmath>
 #include "common_types.h"
 
+using std::pair;
+using std::map;
 using std::vector;
+using std::list;
 using std::cout;
 using std::cin;
 using std::cerr;
@@ -44,21 +50,32 @@ using std::string;
 using boost::gregorian::date;
 
 
-const string cashFlowList [] = { "приход", "расход" };
-
 
 /**
- * @brief montlySimple calculate cashflow for every month for perioud of time
+ * @brief dailyCarts calculate each cart (all purchases) for each day in
+ *        each market
+ * @param data from ods file to process
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return vector of purchase
+ */
+vector<purchase> dailyCarts(const vector<xmlRow> &data,
+                                  date fromDate = date(1970, 01, 01),
+                                  date toDate = date(2100, 01, 01));
+
+/**
+ * @brief monthlySimple calculate cashflow for every month for perioud of time
  *        from fromDate to toDate in vector data
  * @param data from ods file to process
  * @param fromDate low date bound of processed data
  * @param toDate up date bound of processed data
- * @return sorted vector of cashFlow elements for every month for requested perioud
+ * @return map of date=>cashFlow pair for every month for requested perioud
+ *         note: date is a first date of each found month.
+ *         E.g. 2017.01.01 for 2017.01.05
  */
-vector<cashFlow> montlySimple(const vector<xmlRow> &data,
+map<date, cashFlow> monthlySimple(const vector<xmlRow> &data,
                               date fromDate = date(1970, 01, 01),
                               date toDate = date(2100, 01, 01));
-
 
 /**
  * @brief yearlySimple calculate cashflow for every year for perioud of time
@@ -66,21 +83,51 @@ vector<cashFlow> montlySimple(const vector<xmlRow> &data,
  * @param data from ods file to process
  * @param fromDate low date bound of processed data
  * @param toDate up date bound of processed data
- * @return sorted vector of cashFlow elements for every year for requested perioud
+ * @return map of date=>cashFlow elements for every year for requested perioud
  */
-vector<cashFlow> yearlySimple(const vector<xmlRow> &data,
+map<date, cashFlow> yearlySimple(const vector<xmlRow> &data,
                               date fromDate = date(1970, 01, 01),
-                              date toDate = date(1970, 01, 01));
-
+                              date toDate = date(2100, 01, 01));
 
 /**
- * @brief mostExpensiveItems return number of most expensive items from data
+ * @brief theMostExpensiveOutflowItemsPerUnit return most expensive outflow items from data
  * @param data data from ods file to process
  * @param numberofItemsToReturn number of item to return
- * @return sorted vector of numberofItemsToReturn most expensive elements
+ *        Notes: -1 is for all found items (default behaviour)
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return list of list of items
+ * Notes: If several items have equal price then several will be returned in
+ *        the same rank category.
+ *        Rank - items with equal price
+ *         returned value is associated with ranked list of items, like
+ *                [0] - the most expensive items ({2017.01.02, burger, 20$}, {2017.03.22, melon, 20$})
+ *                [numberofItemsToReturn - 1] - the last the most expensive items ({bread, 5$})
+ *                Each rank position is a order of items with the same price
  */
-vector<cashFlow> mostExpensiveItems(const vector<xmlRow> &data,
-                                    unsigned int numberofItemsToReturn = 1);
+list<list<oneItemP>>
+      theMostExpensiveOutflowItemsPerUnit(const vector<xmlRow> &data,
+                                          long int numberofRanksToReturn = -1,
+                                          date fromDate = date(1970, 01, 01),
+                                          date toDate = date(2100, 01, 01));
+
+/**
+ * @brief theMostConsumedItems returns most consumed items from data
+ * @param data data from ods file to process
+ * @param numberofItemsToReturn number of item to return
+ *        Notes: -1 is for all found items (default behaviour)
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return list of list of items (sorted by descending) with amount of each item
+ * Notes: returned result holds the hall order of items instead of certain
+ *        number of items because the hall scope of data will be processed anyway.
+ *        Caller should decide how many items necessary after function execution.
+ */
+list<list<oneItemA>>
+      theMostConsumedItems(const vector<xmlRow> &data,
+                           long int numberofRanksToReturn = -1,
+                           date fromDate = date(1970, 01, 01),
+                           date toDate = date(2100, 01, 01));
 
 
 /**
@@ -93,7 +140,6 @@ vector<cashFlow> mostExpensiveItems(const vector<xmlRow> &data,
  */
 int extract_zip(const char *zipArchiveName, const char *destination);
 
-
 /**
  * @brief operator << Function to output xmlRow struct
  * @param os output stream
@@ -103,11 +149,31 @@ int extract_zip(const char *zipArchiveName, const char *destination);
 ostream &operator <<(ostream &os, const xmlRow &row);
 
 /**
- * @brief sortDateSource Function to sort vector of xml rows in order
- *        by date + source
+ * @brief sortDateSource to sort vector of xml rows in order by date + source
  * @param rows vector of xmlRow rows to sort
  * @param sortOrder 1 - ascending (default), 2 - descending
  */
 void sortDateSource(vector<xmlRow> &rows, const int sortOrder = 1);
+
+/**
+ * @brief sortPrice to sort vector of xml rows in order by price
+ * @param rows vector of xmlRow rows to sort
+ * @param sortOrder 1 - ascending (default), 2 - descending
+ */
+void sortPrice(vector<xmlRow> &rows, const int sortOrder = 1);
+
+/**
+ * @brief sortAmount to sort vector of oneItemA in order by amount
+ * @param rows vector of oneItemA to sort
+ * @param sortOrder 1 - ascending , 2 - descending (default)
+ */
+void sortAmount(vector<oneItemA> &rows, const int sortOrder = 2);
+
+/**
+ * @brief mb_length Find length of multibyte utf8 string
+ * @param s multibyte string in utf8
+ * @return length utf8 string
+ */
+unsigned int mb_length(const string s);
 
 #endif

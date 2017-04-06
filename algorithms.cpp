@@ -24,27 +24,295 @@
 
 
 /**
-  ROUTINES
+  INTERNAL ROUTINES
 */
 static int safe_create_dir(const string &sPath);
+static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
+                                               date from,
+                                               date to,
+                                               perioud per);
 
 
 
-vector<cashFlow> montlySimple(const vector<xmlRow> &data, date from, date to)
+/**
+  EXTERNAL ROUTINES
+ */
+vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
 {
+  map<string, purchase*> tmpResult; /* map to fast search items from vector */
+  vector<purchase>       result;    /* resulted vector */
 
+  // go through data
+  for(auto it = data.begin(); it != data.end(); it++)
+  {
+    // make key string cashflow-source-date
+    string keyString = to_iso_extended_string(it->dateP) + it->cashflow + it->source;
+
+    // check that item in date range
+    if( it->dateP < from || it->dateP > to )
+    {
+      /*
+      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+           << "NOTICE. item doesn't fit to date range. Skip this row."
+           << endl;
+       */
+      continue;
+    }
+
+    // check if map already has such date item
+    map<string, purchase*>::iterator itFound = tmpResult.find(keyString);
+
+    // if nothing was found insert item
+    if( itFound == tmpResult.end() )
+    {
+      purchase tmpPurchase = { it->cashflow, it->source, it->dateP, 0.0 };
+
+      if( it->cashflow == cashFlowList [0] ||
+          it->cashflow == cashFlowList [1] )
+      {
+        tmpPurchase.flow += it->price * it->amount;
+      }
+      else
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Unknown cashflow type. Skip this row."
+             << endl;
+        continue;
+      }
+
+      // add to result vector
+      result.push_back(tmpPurchase);
+
+      // add to map and check errors
+      pair<map<string, purchase*>::iterator, bool> finish =
+          tmpResult.insert(pair<string, purchase*>(keyString, &(result.back())));
+
+      // if insert fail
+      if(!finish.second)
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Handling of " << *it << " failed."
+             << endl;
+      } // END if
+    }
+    else
+    { // if item was found
+
+      if( it->cashflow == cashFlowList [0] ||
+          it->cashflow == cashFlowList [1] )
+      {
+        itFound->second->flow += it->price * it->amount;
+      }
+      else
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Unknown cashflow type. Skip this row."
+             << endl;
+        continue;
+      }
+
+    } // END if
+
+  } // END of
+
+  // make resulted
+
+  return result;
 }
 
 
-vector<cashFlow> yearlySimple(const vector<xmlRow> &data, date from, date to)
+map<date, cashFlow> monthlySimple(const vector<xmlRow> &data, date from, date to)
 {
-
+  return yearlyMonthlySimple(data, from, to, monthP);
 }
 
 
-vector<cashFlow> mostExpensiveItems(const vector<xmlRow> &data, unsigned int numberofItemsToReturn)
+map<date, cashFlow> yearlySimple(const vector<xmlRow> &data, date from, date to)
 {
+  return yearlyMonthlySimple(data, from, to, yearP);
+}
 
+
+list<list<oneItemP>>
+       theMostExpensiveOutflowItemsPerUnit(const vector<xmlRow> &data,
+                                           long int numberofRanksToReturn,
+                                           date from,
+                                           date to)
+{
+  list<list<oneItemP>> result;         // result
+
+  // sanity check
+  assert(numberofRanksToReturn >= -1);
+  if(numberofRanksToReturn == 0)
+    return result;
+
+  vector<xmlRow> tmpData = data; //
+  bool           isFound = false;
+
+  // sort
+  // magic trick to sort by descending vector before processing
+  sortPrice(tmpData, 2);
+
+  for(auto it = tmpData.begin(); it != tmpData.end(); ++it)
+  {
+    // check that item in date range
+    if( it->dateP < from || it->dateP > to )
+    {
+      /*
+      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+           << "NOTICE. item doesn't fit to date range. Skip this row."
+           << endl;
+       */
+      continue;
+    }
+
+    // check that item is outflow only
+    if( it->cashflow != cashFlowList [1] )
+    {
+      continue;
+    }
+
+    // check if item is already in resul
+    // it is important that tmpData has been already sorted
+    isFound = false;
+    for(auto it2 = result.begin(); it2 != result.end() && !isFound; ++it2)
+    {
+      for(auto it3 = it2->begin(); it3 != it2->end() && !isFound; ++it3)
+      {
+        if( it->item == it3->item )
+        {
+          isFound = true;
+        }
+      } // END for
+
+      // check if it is item of the same rank
+      if( !isFound &&
+          it->price == it2->begin()->price )
+      {
+        oneItemP tmpItem = {it->dateP, it->item, it->price};
+        it2->push_back(tmpItem);
+        isFound = true;
+      }
+
+    } // END for
+
+    // skip already existing item
+    if(isFound)
+      continue;
+
+    // add new item to the end
+    // it is new rank of items
+    list<oneItemP> tmpResult;
+    oneItemP tmpItem = {it->dateP, it->item, it->price};
+    tmpResult.push_back(tmpItem);
+    result.push_back(tmpResult);
+
+    // check number of found items
+    if( numberofRanksToReturn > -1 &&
+       (unsigned int)result.size() >= numberofRanksToReturn )
+      break;
+
+  } // END for
+
+  return result;
+}
+
+
+list<list<oneItemA>>
+      theMostConsumedItems(const vector<xmlRow> &data,
+                           long int numberofRanksToReturn,
+                           date from,
+                           date to )
+{
+  list<list<oneItemA>> result;    //
+  vector<oneItemA>     resultTmp; // sort list of items
+
+  // sanity check
+  assert(numberofRanksToReturn >= -1);
+  if(numberofRanksToReturn == 0)
+    return result;
+
+  //process data
+  for(auto it = data.begin(); it != data.end(); ++it)
+  {
+    // check that item in date range
+    if( it->dateP < from || it->dateP > to )
+    {
+      /*
+      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+           << "NOTICE. item doesn't fit to date range. Skip this row."
+           << endl;
+       */
+      continue;
+    }
+
+    // check that item is outflow only
+    if( it->cashflow != cashFlowList [1] )
+    {
+      continue;
+    }
+
+    bool isFound = false;
+    // find item in resultTmp
+    for(auto it2 = resultTmp.begin(); it2 != resultTmp.end(); ++it2)
+    {
+
+      // if item is found
+      if( it->item == it2->item )
+      {
+        isFound = true;
+        // add amount to existing item
+        it2->amount += it->amount;
+        break;
+      } // END if
+    } // END for
+
+    // process next item if current already has been found
+    if(isFound)
+      continue;
+
+    // if it is new item
+    oneItemA tmpItem = {it->item, it->amount};
+    resultTmp.push_back(tmpItem);
+
+  } // END for
+
+  // sort resultTmp
+  sortAmount(resultTmp);
+
+  // create result list
+  for(auto it = resultTmp.begin(); it != resultTmp.end(); ++it)
+  {
+    bool isFound = false;
+    // find rank in list
+    for(auto it2 = result.begin(); it2 != result.end(); ++it2)
+    {
+      // skip rank if item from another rank
+      if( fabs(it->amount - it2->front().amount) >= 0.01 )
+        continue;
+      else
+      {
+        // item is for this rank
+        isFound = true;
+        // add to this rank
+        it2->push_back(*it);
+      }
+    } // END for
+
+    // add new rank for item
+    if( !isFound )
+    {
+      result.push_back({{it->item, it->amount}});
+    }
+
+    // check number of found items
+    if( numberofRanksToReturn > -1 &&
+       (unsigned int)result.size() >= numberofRanksToReturn )
+      break;
+
+  } // END for
+
+  return result;
 }
 
 
@@ -63,13 +331,44 @@ ostream &operator <<(ostream &os, const xmlRow &row)
 
 void sortDateSource(vector<xmlRow> &rows, const int sortOrder)
 {
-  if( 1 == sortOrder )
+  if( 1 == sortOrder ) // ascending
     sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
           return ( a.dateP != b.dateP ) ? (a.dateP < b.dateP) : (a.source < b.source);
         });
-  else if( 2 == sortOrder )
+  else if( 2 == sortOrder ) // descending
     sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
-          return ( a.dateP != b.dateP ) ? (a.dateP < b.dateP) : (a.source < b.source);
+          return ( a.dateP != b.dateP ) ? (a.dateP > b.dateP) : (a.source > b.source);
+        });
+  else
+    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+         << "ERROR: unknown order";
+}
+
+
+void sortPrice(vector<xmlRow> &rows, const int sortOrder)
+{
+  if( 1 == sortOrder ) // ascending
+    sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
+          return (a.price < b.price);
+        });
+  else if( 2 == sortOrder ) // descending
+    sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
+          return (a.price > b.price);
+        });
+  else
+    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+         << "ERROR: unknown order";
+}
+
+void sortAmount(vector<oneItemA> &rows, const int sortOrder)
+{
+  if( 1 == sortOrder ) // ascending
+    sort(rows.begin(), rows.end(),[](oneItemA a, oneItemA b){
+          return (a.amount < b.amount);
+        });
+  else if( 2 == sortOrder ) // descending
+    sort(rows.begin(), rows.end(),[](oneItemA a, oneItemA b){
+          return (a.amount > b.amount);
         });
   else
     cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
@@ -171,6 +470,13 @@ int extract_zip(const char *archive, const char *destination)
   return 0;
 }
 
+
+unsigned int mb_length(const string s)
+{
+  return (s.length() - count_if(s.begin(), s.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+}
+
+
 /**
  * @brief safe_create_dir is a function create absent directories in sPath
  * @param sPath path without trailed "/"
@@ -199,4 +505,108 @@ static int safe_create_dir(const string &sPath)
   }
 
     return 0;
+}
+
+
+/**
+ * @brief yearlyMonthlySimple calculate cashflow for every perioud of time (month, year)
+ *        from fromDate to toDate in vector data
+ * @param data from ods file to process
+ * @param fromDate low date bound of processed data
+ * @param toDate up date bound of processed data
+ * @return map of inflow/outflow for every perioud (month, year)
+ */
+static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
+                                               date from,
+                                               date to,
+                                               perioud per)
+{
+  map<date, cashFlow> result;
+
+  // go through data
+  for(auto it = data.begin(); it != data.end(); it++)
+  {
+    date::year_type  tmpYear  = it->dateP.year();
+    date             tmpStartDate;
+
+    if( monthP == per )
+    {
+      date::month_type tmpMonth = it->dateP.month();
+      tmpStartDate = date(tmpYear, tmpMonth, 1); // first day in processed month
+    }
+    else if( yearP == per )
+    {
+      tmpStartDate = date(tmpYear, 1, 1); // first day in prcessed year
+    }
+
+    // check that item in date range
+    if( it->dateP < from || it->dateP > to )
+    {
+      /*
+      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+           << "NOTICE. item doesn't fit to date range. Skip this row."
+           << endl;
+       */
+      continue;
+    }
+
+    // check if map already has such date item
+    map<date, cashFlow>::iterator itFound = result.find(tmpStartDate);
+
+    // if nothing was found insert item
+    if( itFound == result.end() )
+    {
+      cashFlow tmpCashFlow = {0, 0};
+
+      if(it->cashflow == cashFlowList [0])
+      {
+        tmpCashFlow.inflow += it->price * it->amount;
+      }
+      else if(it->cashflow == cashFlowList [1])
+      {
+        tmpCashFlow.outflow += it->price * it->amount;
+      }
+      else
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Unknown cashflow type. Skip this row."
+             << endl;
+        continue;
+      }
+
+      // check errors
+      pair<map<date, cashFlow>::iterator, bool> finish =
+          result.insert(pair<date, cashFlow>(tmpStartDate, tmpCashFlow));
+
+      // if insert fail
+      if(!finish.second)
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Handling of " << *it << " failed."
+             << endl;
+      } // END if
+    }
+    else
+    {
+      // if item was found
+      if(it->cashflow == cashFlowList [0])
+      {
+        itFound->second.inflow += it->price * it->amount;
+      }
+      else if(it->cashflow == cashFlowList [1])
+      {
+        itFound->second.outflow += it->price * it->amount;
+      }
+      else
+      {
+        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+             << "ERROR. Unknown cashflow type. Skip this row."
+             << endl;
+        continue;
+      }
+    } // END if
+
+  } // END of
+
+  return result;
 }

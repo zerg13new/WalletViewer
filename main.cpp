@@ -21,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <clocale>
 
 #include "ods_reader.h"
 #include "content_reader.h"
@@ -43,14 +44,19 @@ int main()
 
   vector<string> tables;
   vector<xmlRow> data;
+  map<date, cashFlow> stat;
   unsigned int answer;
+  const unsigned int wideF = 12;
 
+  cout << endl;
   cout << "Start main" << endl;
 
 //  ODSReader("/home/xxx/Work/payment_cli/test.ods");
 
 //  ContentReader test("/home/xxx/Work/payment_cli/test.ods");
-  ContentReader test("/home/xxx/Work/payment_cli/test_2.ods");
+//  ContentReader test("/home/xxx/Work/payment_cli/test_2.ods");
+    ContentReader test("/home/xxx/Work/payment.ods");
+
 
   // find tables in file
   tables = test.getTablesList();
@@ -87,12 +93,162 @@ int main()
   // get data from table
   data = test.getTableData(tables[answer]);
 
-  // sort data
-  sortDateSource(data);
-
-  for( auto &it: data )
+  // montly statistic in simple formatted table
+  if(0)
   {
-    cout << it << endl << endl;
+    // get statistic for month
+    stat = monthlySimple(data);
+
+    // header
+    cout << setw(wideF) << "date"
+         << setw(wideF) << "inflow(+)"
+         << setw(wideF) << "outflow(-)"
+         << endl;
+
+    for(auto &it: stat)
+    {
+      // show in formated table
+      cout << setw(wideF) << to_iso_extended_string(it.first)
+           << std::showpoint << std::fixed << std::setprecision(2)
+           << setw(wideF) << it.second.inflow
+           << setw(wideF) << it.second.outflow << endl;
+    }
+  }
+
+  // monthly statistic in scv formatted table
+  if(0)
+  {
+    // get statistic for month
+    stat = monthlySimple(data);
+
+    // header
+    cout << setw(wideF) << "date"
+         << setw(wideF) << "inflow(+)"
+         << setw(wideF) << "outflow(-)"
+         << endl;
+
+    for(auto &it: stat)
+    {
+      cout << to_iso_extended_string(it.first) << " ; "
+           << std::showpoint << std::fixed << std::setprecision(2)
+           << it.second.inflow << ";"
+           << setw(wideF) << it.second.outflow << endl;
+    }
+  }
+
+  // yearly statistic in simple formatted table
+  if(0)
+  {
+    // get statistic for month
+    stat = yearlySimple(data);
+
+    // header
+    cout << setw(wideF) << "date"
+         << setw(wideF) << "inflow(+)"
+         << setw(wideF) << "outflow(-)"
+         << endl;
+
+    for(auto &it: stat)
+    {
+      // show in formated table
+      cout << setw(wideF) << to_iso_extended_string(it.first)
+           << std::showpoint << std::fixed << std::setprecision(2)
+           << setw(wideF) << it.second.inflow
+           << setw(wideF) << it.second.outflow << endl;
+    }
+  }
+
+
+  // daily carts in simple formated table
+  if(0)
+  {
+    vector<purchase> stat2 = dailyCarts(data);
+
+    // header
+    cout << setw(wideF) << "cash flow"
+         << setw(wideF) << "date"
+         << setw(wideF) << "source"
+         << setw(wideF) << "flow"
+         << endl;
+
+    for(auto &it: stat2)
+    {
+
+      cout << setw(wideF) << it.cashflow
+           << setw(wideF) << to_iso_extended_string(it.dateP)
+           << setw(wideF) << it.source
+           << std::showpoint << std::fixed << std::setprecision(2)
+           << setw(wideF) << it.flow << endl;
+    }
+  }
+
+  // show the most expensive items
+  if(0)
+  {
+
+    list<list<oneItemP>> stat2 = theMostExpensiveOutflowItemsPerUnit(data, 20);
+    unsigned int i = 0;
+
+    // header
+    cout << "rank"
+         << setw(wideF - 4) << "date"
+         << setw(wideF * 2) << "item"
+         << setw(wideF) << "totalPrice"
+         << endl;
+
+    for(auto &it: stat2)
+    {
+      cout << "rank: " << (i + 1) << endl;
+      for(auto &it2: it)
+      {
+        unsigned int wideItem = (wideF * 2 > mb_length(it2.item)) ?
+                                (wideF * 2 - mb_length(it2.item)) :
+                                (0);
+        cout << setw(wideF)
+             << setw(wideF) << to_iso_extended_string(it2.dateP)
+             << string(wideItem, ' ')
+             << it2.item
+//             << "(" << mb_length(it2.item) << ")"
+             << std::showpoint << std::fixed << std::setprecision(2)
+             << setw(wideF) << it2.price << endl;
+
+      } // END for
+
+      i++;
+    } // END for
+  }
+
+  // show the most consumed items
+  if(1)
+  {
+
+    list<list<oneItemA>> stat2 = theMostConsumedItems(data, 10);
+    unsigned int i = 0;
+
+    // header
+    cout << "rank"
+         << setw(wideF * 2) << "item"
+         << setw(wideF) << "amount"
+         << endl;
+
+    for(auto &it: stat2)
+    {
+      cout << "rank: " << (i + 1) << endl;
+      for(auto &it2: it)
+      {
+        unsigned int wideItem = (wideF * 2 > mb_length(it2.item)) ?
+                                (wideF * 2 - mb_length(it2.item)) :
+                                (0);
+        cout
+             << string(wideItem, ' ')
+             << it2.item
+    //             << "(" << mb_length(it2.item) << ")"
+             << std::showpoint << std::fixed << std::setprecision(2)
+             << setw(wideF) << it2.amount << endl;
+       }// END for
+
+      i++;
+    } // END for
   }
 
   return 0;

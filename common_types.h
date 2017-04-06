@@ -17,7 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with CashFlow.  If not, see <http://www.gnu.org/licenses/>.
 
-  description: algorithms for processing table content.xml file
+  description: common types used by others
 */
 
 
@@ -37,31 +37,65 @@ using boost::gregorian::from_string;
 using boost::gregorian::to_iso_extended_string;
 
 const unsigned int numCellsInRow = 6;
+const string       cashFlowList [] = { "приход", "расход" };
 
 
 /**
- xml row fromtable from content.xml file
-*/
+ * @brief The xmlRow struct represents row from table from content.xml file
+ */
 struct xmlRow
 {
-  string cashflow; // inflow/outflow
+  string cashflow; // приход/расход
   string source;   // Лента, eurospar e.t.c
   date dateP;      // date of purchase (ex 2017-02-12)
   string item;     // what is bought
   float price;     // how much does it cost
-  float amount;    // how many items is bought
+  float amount;    // how many items are bought
+};
+
+/**
+ * @brief The oneItem struct represents one item and his total price
+ */
+struct oneItemP
+{
+  date dateP;  // date of purchase (ex 2017-02-12)
+  string item; // what is bought
+  float price; // how much does it cost
+};
+
+struct oneItemA
+{
+  string item;  // what is bought
+  float amount; // how many items is bought
+};
+
+/**
+ * @brief The purchase struct represents common amount of money for
+ *        one cashflow-source-date
+ */
+struct purchase
+{
+  string cashflow; // inflow/outflow
+  string source;   // Лента, eurospar
+  date dateP;      // date of purchase (ex 2017-02-12)
+  float flow;      // common amount of money for this purchase
 };
 
 
 /**
- returned value format for statistic
-*/
+ * @brief The cashFlow struct represents returned value for statistic
+ */
 struct cashFlow
 {
-  date dateC;    // first day of month for current perioud (ex 2017-02-01
-                 // for 02-th month)
-  float inflow;  // cashflow input for this month
-  float outflow; // cashflow output for this month
+  float inflow;  // cashflow input for this month (приход)
+  float outflow; // cashflow output for this month (расход)
+};
+
+
+enum perioud
+{
+  monthP,
+  yearP
 };
 
 #endif
