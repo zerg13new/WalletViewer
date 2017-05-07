@@ -23,14 +23,17 @@ ODSReader::ODSReader(const string _odsFileName)
  :odsFileName(_odsFileName) // should be full absolute path
 {
   const string FUNC_  = "ODSReader::ODSReader(const string _odsFileName)";
-  path tmpDir   = temp_directory_path();
-  path uniqPath = unique_path();
+  string       tmpDir = "/tmp";
+  string       currentUserUID = to_string(getuid()); // get current user UID
 
-  // make uniq path for temp directory
-  tmpDir /= uniqPath;
+  // make uniq path for user directory
+  tmpDir.append("/").append(currentUserUID);
 
-  // finish object initialization
-  pathToExtractedODS = tmpDir.string();
+  // object initialization
+  pathToExtractedODS = tmpDir;
+
+  // cleanup from previous data
+  remove_all(pathToExtractedODS);
 
   // check file exists
   if( !exists(_odsFileName) )
@@ -41,10 +44,10 @@ ODSReader::ODSReader(const string _odsFileName)
   }
 
   // check temporary folder doesn't exist
-  if( exists(tmpDir) )
+  if( exists(path(tmpDir)) )
   {
-    string errorMessage = string(FUNC_).append(": temp doesn't' already exist ")
-                          .append(tmpDir.string());
+    string errorMessage = string(FUNC_).append(": temp directory already exist ")
+                          .append(tmpDir);
     throw runtime_error(errorMessage);
   }
 
@@ -52,7 +55,7 @@ ODSReader::ODSReader(const string _odsFileName)
   if(!create_directories(tmpDir))
   {
     string errorMessage = string(FUNC_).append(": can't create directory ")
-                          .append(tmpDir.string());
+                          .append(tmpDir);
     throw runtime_error(errorMessage);
   }
 

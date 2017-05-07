@@ -22,20 +22,22 @@
 #define _ODS_READER_H_
 
 #include <string>
+#include <unistd.h>
+#include <sys/types.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include "algorithms.h"
 
 using std::string;
+using std::to_string;
 using std::runtime_error;
 using boost::filesystem::path;
-//using namespace boost::filesystem::detail;
-using boost::filesystem::unique_path;
 using boost::filesystem::temp_directory_path;
 using boost::filesystem::current_path;
 using boost::filesystem::exists;
 using boost::filesystem::remove_all;
+using boost::filesystem::create_directories;
 
 /**
  * @brief The ODSReader class for extracting content of *.ods file in
@@ -94,7 +96,7 @@ class ODSReader
 
     /**
      * @brief full path (without trailed /) to temp dir where *.ods file
-     *        was extracted
+     *        was extracted. Currently it is /tmp/uid/filename.ods/
      */
     string pathToExtractedODS;
 };
