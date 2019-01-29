@@ -24,20 +24,14 @@
 #include <string>
 #include <unistd.h>
 #include <sys/types.h>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 
 #include "algorithms.h"
 
 using std::string;
 using std::to_string;
 using std::runtime_error;
-using boost::filesystem::path;
-using boost::filesystem::temp_directory_path;
-using boost::filesystem::current_path;
-using boost::filesystem::exists;
-using boost::filesystem::remove_all;
-using boost::filesystem::create_directories;
+using namespace std::filesystem;
 
 /**
  * @brief The ODSReader class for extracting content of *.ods file in

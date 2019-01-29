@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.12.1)
 
-project( WalletViewer
+project(WalletViewer
     VERSION 1.1.0.0
     DESCRIPTION "Project to show many flow in your pocket"
     HOMEPAGE_URL "https://github.com/zerg13new/WalletViewer"
-    LANGUAGES CXX
-    )
+    LANGUAGES CXX)
+
+# C++ required
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #Define build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -45,30 +48,33 @@ include(CMakeTools/add_library.cmake)
 # Include libraryies
 add_library_interface(zip SHARED)
 
+# Find boost
+find_package(Boost 1.67.0
+    REQUIRED
+    COMPONENTS system date_time)
+
+message(STATUS "Boost_LIBRARIES is ${Boost_LIBRARIES}")
+
 # Main build
 add_executable(walletviewer)
 target_include_directories(walletviewer
     PUBLIC include ${zip_include})
-target_link_libraries(walletviewer -lzip)
-add_dependencies(walletviewer zip)
+target_link_libraries(walletviewer zip Boost::system Boost::date_time stdc++fs)
+add_dependencies(walletviewer zip Boost::system Boost::date_time)
 
-set( SRC
+set(SRC
     src/algorithms.cpp
     src/content_reader.cpp
     src/ods_reader.cpp
-    src/main.cpp
-    )
+    src/main.cpp)
 
-target_sources( walletviewer 
-    PRIVATE ${SRC}
-    )
+target_sources(walletviewer
+    PRIVATE ${SRC})
 
-install( TARGETS walletviewer
+install(TARGETS walletviewer
     CONFIGURATIONS Release
-    RUNTIME DESTINATION ${CMAKE_BINARY_DIR}
-    )
+    RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 
-install( TARGETS walletviewer
+install(TARGETS walletviewer
     CONFIGURATIONS Debug
-    RUNTIME DESTINATION ${CMAKE_BINARY_DIR}
-    )
+    RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
