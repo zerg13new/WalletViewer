@@ -20,27 +20,27 @@
 #include "content_reader.h"
 
 // path to table node in contenxt.xml file
-static const string spreadsheetPath = "office:document-content.office:body.office:spreadsheet";
+static const std::string spreadsheetPath = "office:document-content.office:body.office:spreadsheet";
 // xml tag for attributes in context.xml file
-static const string xmlattr         = "<xmlattr>";
+static const std::string xmlattr         = "<xmlattr>";
 // node name for spreadsheet in content.xml file
-static const string nodeTable       = "table:table";
+static const std::string nodeTable       = "table:table";
 // xml attribute containing spreadsheet table name
-static const string nodeTableName   = "table:name";
+static const std::string nodeTableName   = "table:name";
 // xml attribute containing row nodes
-static const string nodeTableRow   = "table:table-row";
+static const std::string nodeTableRow   = "table:table-row";
 // xml attribute containing cell nodes
-static const string nodeTableCell   = "table:table-cell";
+static const std::string nodeTableCell   = "table:table-cell";
 // xml attribute for cell containing value
-static const string nodeOfficeValue   = "office:value-type";
+static const std::string nodeOfficeValue   = "office:value-type";
 // xml attribute containing text of row node
-static const string nodeTableText   = "text:p";
+static const std::string nodeTableText   = "text:p";
 
 
-ContentReader::ContentReader(const string _odsFileName)
+ContentReader::ContentReader(const std::string _odsFileName)
  :ODSReader(_odsFileName), contentFileName("content.xml")
 {
-  string tmpFile(this->pathToExtractedODS);
+  std::string tmpFile(this->pathToExtractedODS);
 
   tmpFile.append("/").append(contentFileName);
 
@@ -49,30 +49,30 @@ ContentReader::ContentReader(const string _odsFileName)
 }
 
 
-string ContentReader::getContentName() const
+std::string ContentReader::getContentName() const
 {
     return contentFileName;
 }
 
 
-vector<string> ContentReader::getTablesList() const
+std::vector<std::string> ContentReader::getTablesList() const
 {
   ptree          tree2 = tree.get_child(spreadsheetPath);
-  vector<string> tables;
+  std::vector<std::string> tables;
 
   // find nodes with table:table content
-  pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
+  std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
       tree2.equal_range(nodeTable);
   for( ptree::const_assoc_iterator it = result.first; it != result.second; ++it )
   {
-//      cout << "found: " << it->first << endl;
+//      std::cout << "found: " << it->first << std::endl;
 
     // get xmlattr called table:name in node
-    pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
+    std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
         it->second.get_child(xmlattr).equal_range(nodeTableName);
     for( ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
     {
-//        cout << "  attr: " << it2->first << " => " << it2->second.data() << endl;
+//        std::cout << "  attr: " << it2->first << " => " << it2->second.data() << std::endl;
       // save found table names in vector
       tables.push_back(it2->second.data());
     }
@@ -82,27 +82,27 @@ vector<string> ContentReader::getTablesList() const
 }
 
 
-vector<xmlRow> ContentReader::getTableData(const string tableName) const
+std::vector<xmlRow> ContentReader::getTableData(const std::string tableName) const
 {
-  ptree          tree2 = tree.get_child(string(spreadsheetPath));
-  vector<xmlRow> table;
+  ptree          tree2 = tree.get_child(std::string(spreadsheetPath));
+  std::vector<xmlRow> table;
   bool           flag = false; // is table was found
 
   // Find nodes with table:table content
   // It should be the only table
-  pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
+  std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
       tree2.equal_range(nodeTable);
   for( ptree::const_assoc_iterator it = result.first; it != result.second && !flag; ++it )
   {
-    cout << "found: " << it->first << endl;
+    std::cout << "found: " << it->first << std::endl;
 
     // get xmlattr called table:name in node
 
-    pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
+    std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
         it->second.get_child(xmlattr).equal_range(nodeTableName);
     for( ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
     {
-//        cout << "  attr: " << it2->first << " => " << it2->second.data() << endl;
+//        std::cout << "  attr: " << it2->first << " => " << it2->second.data() << std::endl;
         if( it2->second.data() == tableName )
         {
           flag = true;
@@ -131,7 +131,7 @@ vector<xmlRow> ContentReader::getTableData(const string tableName) const
         {
           // filter cell that have value
           // sanity check, cell isn't empty
-          it3->second.get_child(string(xmlattr) + "." + string(nodeOfficeValue));
+          it3->second.get_child(std::string(xmlattr) + "." + std::string(nodeOfficeValue));
 
           // get data from row
           // It is column number in ods table starting from 0
@@ -142,32 +142,32 @@ vector<xmlRow> ContentReader::getTableData(const string tableName) const
           {
 
             case 0:
-              tmpRow.cashflow = it3->second.get<string>(string(nodeTableText));
+              tmpRow.cashflow = it3->second.get<std::string>(std::string(nodeTableText));
               break;
 
             case 1:
-              tmpRow.source = it3->second.get<string>(string(nodeTableText));
+              tmpRow.source = it3->second.get<std::string>(std::string(nodeTableText));
               break;
 
             case 2:
-              tmpRow.dateP = from_string(it3->second.get<string>(string(nodeTableText)));
+              tmpRow.dateP = boost::gregorian::from_string(it3->second.get<std::string>(std::string(nodeTableText)));
               break;
 
             case 3:
-              tmpRow.item = it3->second.get<string>(string(nodeTableText));
+              tmpRow.item = it3->second.get<std::string>(std::string(nodeTableText));
               break;
 
             case 4:
-              tmpRow.price = it3->second.get<float>(string(nodeTableText));
+              tmpRow.price = it3->second.get<float>(std::string(nodeTableText));
               break;
 
             case 5:
-              tmpRow.amount = it3->second.get<float>(string(nodeTableText));
+              tmpRow.amount = it3->second.get<float>(std::string(nodeTableText));
               break;
 
             default:
-              cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
-                   << "ERROR. Wrong column counter i = "<< i << endl;
+              std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
+                   << "ERROR. Wrong column counter i = "<< i << std::endl;
           } // END switch
 
           // take this string into account only for successfull case
@@ -176,33 +176,33 @@ vector<xmlRow> ContentReader::getTableData(const string tableName) const
         }
         catch(const ptree_bad_path &e)
         {
-          cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
-               << "ERROR. No value in cell. Skip the hall row." << endl
-               << "Error message: " << e.what() << endl;
+          std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
+               << "ERROR. No value in cell. Skip the hall row." << std::endl
+               << "Error message: " << e.what() << std::endl;
           break;
         }
         catch(const bad_lexical_cast &e)
         {
-          cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
-               << "ERROR. Can't convert correctly value in cell. Skip the hall row." << endl
-               << "Error message: " << e.what() << endl;
+          std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
+               << "ERROR. Can't convert correctly value in cell. Skip the hall row." << std::endl
+               << "Error message: " << e.what() << std::endl;
           break;
         }
         catch(...)
         {
-          cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
-               << "ERROR. Unknown error" << endl;
+          std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
+               << "ERROR. Unknown error" << std::endl;
         }
 
       } // END for cells
 
-//      cout << "DEBUG: " << endl << tmpRow << endl << endl;
+//      std::cout << "DEBUG: " << std::endl << tmpRow << std::endl << std::endl;
 
       if( i != numCellsInRow )
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. No necessary cells in row to fill the hall row. Skip this row."
-             << " Cells = " << i << endl;
+             << " Cells = " << i << std::endl;
         continue;
       }
       else

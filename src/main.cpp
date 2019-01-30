@@ -27,29 +27,19 @@
 #include "content_reader.h"
 #include "algorithms.h"
 
-using std::cout;
-using std::cin;
-using std::cerr;
-using std::endl;
-using std::exception;
-using std::string;
-using std::vector;
-using std::setw;
-
-
 
 //int main(int argc, char **argv)
 int main()
 {
 
-  vector<string> tables;
-  vector<xmlRow> data;
-  map<date, cashFlow> stat;
+  std::vector<std::string> tables;
+  std::vector<xmlRow> data;
+  std::map<boost::gregorian::date, cashFlow> stat;
   unsigned int answer;
   const unsigned int wideF = 12;
 
-  cout << endl;
-  cout << "Start main" << endl;
+  std::cout << std::endl;
+  std::cout << "Start main" << std::endl;
 
 //  ODSReader("/home/xxx/Work/payment_cli/test.ods");
 
@@ -63,19 +53,19 @@ int main()
 
   if(tables.size() == 0)
   {
-    cout << "There no tables in file" << endl;
+    std::cout << "There no tables in file" << std::endl;
     return 0;
   }
   else
   {
-    vector<string>::iterator it;
+    std::vector<std::string>::iterator it;
     unsigned int i = 0;
 
-    cout << "Choose num of table to process: " << endl
-         << setw(5) << " Num   " << "Table name" << endl;
+    std::cout << "Choose num of table to process: " << std::endl
+         << std::setw(5) << " Num   " << "Table name" << std::endl;
     for(it = tables.begin(); it != tables.end(); it++)
     {
-      cout << "[" << setw(3) << i++ << "]  " << *it << endl;
+      std::cout << "[" << std::setw(3) << i++ << "]  " << *it << std::endl;
     }
     // reinitialize i, use like a size of tables
     i--;
@@ -83,10 +73,10 @@ int main()
     // read user answer
     do
     {
-      cin >> answer;
+      std::cin >> answer;
     }while( answer > i );
 
-    cout << "Read " << tables[answer] << " table" << endl;
+    std::cout << "Read " << tables[answer] << " table" << std::endl;
 
   } // END if(tables.size()
 
@@ -100,18 +90,18 @@ int main()
     stat = monthlySimple(data);
 
     // header
-    cout << setw(wideF) << "date"
-         << setw(wideF) << "inflow(+)"
-         << setw(wideF) << "outflow(-)"
-         << endl;
+    std::cout << std::setw(wideF) << "date"
+         << std::setw(wideF) << "inflow(+)"
+         << std::setw(wideF) << "outflow(-)"
+         << std::endl;
 
     for(auto &it: stat)
     {
       // show in formated table
-      cout << setw(wideF) << to_iso_extended_string(it.first)
+      std::cout << std::setw(wideF) << boost::gregorian::to_iso_extended_string(it.first)
            << std::showpoint << std::fixed << std::setprecision(2)
-           << setw(wideF) << it.second.inflow
-           << setw(wideF) << it.second.outflow << endl;
+           << std::setw(wideF) << it.second.inflow
+           << std::setw(wideF) << it.second.outflow << std::endl;
     }
   }
 
@@ -122,17 +112,17 @@ int main()
     stat = monthlySimple(data);
 
     // header
-    cout << setw(wideF) << "date"
-         << setw(wideF) << "inflow(+)"
-         << setw(wideF) << "outflow(-)"
-         << endl;
+    std::cout << std::setw(wideF) << "date"
+         << std::setw(wideF) << "inflow(+)"
+         << std::setw(wideF) << "outflow(-)"
+         << std::endl;
 
     for(auto &it: stat)
     {
-      cout << to_iso_extended_string(it.first) << " ; "
+      std::cout << boost::gregorian::to_iso_extended_string(it.first) << " ; "
            << std::showpoint << std::fixed << std::setprecision(2)
            << it.second.inflow << ";"
-           << setw(wideF) << it.second.outflow << endl;
+           << std::setw(wideF) << it.second.outflow << std::endl;
     }
   }
 
@@ -143,18 +133,18 @@ int main()
     stat = yearlySimple(data);
 
     // header
-    cout << setw(wideF) << "date"
-         << setw(wideF) << "inflow(+)"
-         << setw(wideF) << "outflow(-)"
-         << endl;
+    std::cout << std::setw(wideF) << "date"
+         << std::setw(wideF) << "inflow(+)"
+         << std::setw(wideF) << "outflow(-)"
+         << std::endl;
 
     for(auto &it: stat)
     {
       // show in formated table
-      cout << setw(wideF) << to_iso_extended_string(it.first)
+      std::cout << std::setw(wideF) << boost::gregorian::to_iso_extended_string(it.first)
            << std::showpoint << std::fixed << std::setprecision(2)
-           << setw(wideF) << it.second.inflow
-           << setw(wideF) << it.second.outflow << endl;
+           << std::setw(wideF) << it.second.inflow
+           << std::setw(wideF) << it.second.outflow << std::endl;
     }
   }
 
@@ -162,23 +152,23 @@ int main()
   // daily carts in simple formated table
   if(0)
   {
-    vector<purchase> stat2 = dailyCarts(data);
+    std::vector<purchase> stat2 = dailyCarts(data);
 
     // header
-    cout << setw(wideF) << "cash flow"
-         << setw(wideF) << "date"
-         << setw(wideF) << "source"
-         << setw(wideF) << "flow"
-         << endl;
+    std::cout << std::setw(wideF) << "cash flow"
+         << std::setw(wideF) << "date"
+         << std::setw(wideF) << "source"
+         << std::setw(wideF) << "flow"
+         << std::endl;
 
     for(auto &it: stat2)
     {
 
-      cout << setw(wideF) << it.cashflow
-           << setw(wideF) << to_iso_extended_string(it.dateP)
-           << setw(wideF) << it.source
+      std::cout << std::setw(wideF) << it.cashflow
+           << std::setw(wideF) << boost::gregorian::to_iso_extended_string(it.dateP)
+           << std::setw(wideF) << it.source
            << std::showpoint << std::fixed << std::setprecision(2)
-           << setw(wideF) << it.flow << endl;
+           << std::setw(wideF) << it.flow << std::endl;
     }
   }
 
@@ -186,31 +176,31 @@ int main()
   if(0)
   {
 
-    list<list<oneItemP>> stat2 = theMostExpensiveOutflowItemsPerUnit(data, 20);
+    std::list<std::list<oneItemP>> stat2 = theMostExpensiveOutflowItemsPerUnit(data, 20);
     unsigned int i = 0;
 
     // header
-    cout << "rank"
-         << setw(wideF - 4) << "date"
-         << setw(wideF * 2) << "item"
-         << setw(wideF) << "totalPrice"
-         << endl;
+    std::cout << "rank"
+         << std::setw(wideF - 4) << "date"
+         << std::setw(wideF * 2) << "item"
+         << std::setw(wideF) << "totalPrice"
+         << std::endl;
 
     for(auto &it: stat2)
     {
-      cout << "rank: " << (i + 1) << endl;
+      std::cout << "rank: " << (i + 1) << std::endl;
       for(auto &it2: it)
       {
         unsigned int wideItem = (wideF * 2 > mb_length(it2.item)) ?
                                 (wideF * 2 - mb_length(it2.item)) :
                                 (0);
-        cout << setw(wideF)
-             << setw(wideF) << to_iso_extended_string(it2.dateP)
-             << string(wideItem, ' ')
+        std::cout << std::setw(wideF)
+             << std::setw(wideF) << boost::gregorian::to_iso_extended_string(it2.dateP)
+             << std::string(wideItem, ' ')
              << it2.item
 //             << "(" << mb_length(it2.item) << ")"
              << std::showpoint << std::fixed << std::setprecision(2)
-             << setw(wideF) << it2.price << endl;
+             << std::setw(wideF) << it2.price << std::endl;
 
       } // END for
 
@@ -222,29 +212,29 @@ int main()
   if(1)
   {
 
-    list<list<oneItemA>> stat2 = theMostConsumedItems(data, 10);
+    std::list<std::list<oneItemA>> stat2 = theMostConsumedItems(data, 10);
     unsigned int i = 0;
 
     // header
-    cout << "rank"
-         << setw(wideF * 2) << "item"
-         << setw(wideF) << "amount"
-         << endl;
+    std::cout << "rank"
+         << std::setw(wideF * 2) << "item"
+         << std::setw(wideF) << "amount"
+         << std::endl;
 
     for(auto &it: stat2)
     {
-      cout << "rank: " << (i + 1) << endl;
+      std::cout << "rank: " << (i + 1) << std::endl;
       for(auto &it2: it)
       {
         unsigned int wideItem = (wideF * 2 > mb_length(it2.item)) ?
                                 (wideF * 2 - mb_length(it2.item)) :
                                 (0);
-        cout
-             << string(wideItem, ' ')
+        std::cout
+             << std::string(wideItem, ' ')
              << it2.item
     //             << "(" << mb_length(it2.item) << ")"
              << std::showpoint << std::fixed << std::setprecision(2)
-             << setw(wideF) << it2.amount << endl;
+             << std::setw(wideF) << it2.amount << std::endl;
        }// END for
 
       i++;

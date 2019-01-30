@@ -19,12 +19,12 @@
 
 #include "ods_reader.h"
 
-ODSReader::ODSReader(const string _odsFileName)
+ODSReader::ODSReader(const std::string _odsFileName)
  :odsFileName(_odsFileName) // should be full absolute path
 {
-  const string FUNC_  = "ODSReader::ODSReader(const string _odsFileName)";
-  string       tmpDir = "/tmp";
-  string       currentUserUID = to_string(getuid()); // get current user UID
+  const std::string FUNC_  = "ODSReader::ODSReader(const std::string _odsFileName)";
+  std::string       tmpDir = "/tmp";
+  std::string       currentUserUID = std::to_string(getuid()); // get current user UID
 
   // make uniq path for user directory
   tmpDir.append("/").append(currentUserUID);
@@ -38,25 +38,25 @@ ODSReader::ODSReader(const string _odsFileName)
   // check file exists
   if( !exists(_odsFileName) )
   {
-    string errorMessage = string(FUNC_).append(": file doesn't exist ")
+    std::string errorMessage = std::string(FUNC_).append(": file doesn't exist ")
                           .append(_odsFileName);
-    throw runtime_error(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   // check temporary folder doesn't exist
   if( exists(path(tmpDir)) )
   {
-    string errorMessage = string(FUNC_).append(": temp directory already exist ")
+    std::string errorMessage = std::string(FUNC_).append(": temp directory already exist ")
                           .append(tmpDir);
-    throw runtime_error(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   // create temporary directory
   if(!create_directories(tmpDir))
   {
-    string errorMessage = string(FUNC_).append(": can't create directory ")
+    std::string errorMessage = std::string(FUNC_).append(": can't create directory ")
                           .append(tmpDir);
-    throw runtime_error(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 
   // extract ods file to temp directory
@@ -67,7 +67,7 @@ ODSReader::ODSReader(const string _odsFileName)
 
 void ODSReader::extractFile() const
 {
-  const string FUNC_  = "ODSReader::extractFile() const";
+  const std::string FUNC_  = "ODSReader::extractFile() const";
 
   // extract ods file to temp directory
   if( extract_zip(odsFileName.c_str(), pathToExtractedODS.c_str()) )
@@ -75,21 +75,21 @@ void ODSReader::extractFile() const
     // cleanup extracted files
     remove_all(pathToExtractedODS);
 
-    string errorMessage = string(FUNC_).append(": can't extract file ")
+    std::string errorMessage = std::string(FUNC_).append(": can't extract file ")
                           .append(odsFileName).append(" to temp directory ")
                           .append(pathToExtractedODS);
-    throw runtime_error(errorMessage);
+    throw std::runtime_error(errorMessage);
   }
 }
 
 
-string ODSReader::getODSFileName() const
+std::string ODSReader::getODSFileName() const
 {
     return odsFileName;
 }
 
 
-string ODSReader::getPathToODS() const
+std::string ODSReader::getPathToODS() const
 {
     return pathToExtractedODS;
 }
