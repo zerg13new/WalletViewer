@@ -28,10 +28,6 @@
 
 #include "algorithms.h"
 
-//using std::string;
-//using std::to_string;
-//using std::runtime_error;
-using namespace std::filesystem;
 
 /**
  * @brief The ODSReader class for extracting content of *.ods file in

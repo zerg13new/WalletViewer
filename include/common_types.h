@@ -30,9 +30,6 @@
 #include <boost/date_time/gregorian/parsers.hpp>
 #include <boost/date_time/gregorian/formatters.hpp>
 
-using boost::property_tree::ptree;
-//using boost::gregorian::from_string;
-//using boost::gregorian::to_iso_extended_string;
 
 const unsigned int numCellsInRow = 6;
 const std::string       cashFlowList [] = { "приход", "расход" };

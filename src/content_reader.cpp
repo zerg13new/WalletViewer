@@ -57,20 +57,20 @@ std::string ContentReader::getContentName() const
 
 std::vector<std::string> ContentReader::getTablesList() const
 {
-  ptree          tree2 = tree.get_child(spreadsheetPath);
+  boost::property_tree::ptree          tree2 = tree.get_child(spreadsheetPath);
   std::vector<std::string> tables;
 
   // find nodes with table:table content
-  std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
+  std::pair<boost::property_tree::ptree::const_assoc_iterator, boost::property_tree::ptree::const_assoc_iterator> result =
       tree2.equal_range(nodeTable);
-  for( ptree::const_assoc_iterator it = result.first; it != result.second; ++it )
+  for( boost::property_tree::ptree::const_assoc_iterator it = result.first; it != result.second; ++it )
   {
 //      std::cout << "found: " << it->first << std::endl;
 
     // get xmlattr called table:name in node
-    std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
+    std::pair<boost::property_tree::ptree::const_assoc_iterator, boost::property_tree::ptree::const_assoc_iterator> result2 =
         it->second.get_child(xmlattr).equal_range(nodeTableName);
-    for( ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
+    for( boost::property_tree::ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
     {
 //        std::cout << "  attr: " << it2->first << " => " << it2->second.data() << std::endl;
       // save found table names in vector
@@ -84,23 +84,23 @@ std::vector<std::string> ContentReader::getTablesList() const
 
 std::vector<xmlRow> ContentReader::getTableData(const std::string tableName) const
 {
-  ptree          tree2 = tree.get_child(std::string(spreadsheetPath));
+  boost::property_tree::ptree          tree2 = tree.get_child(std::string(spreadsheetPath));
   std::vector<xmlRow> table;
   bool           flag = false; // is table was found
 
   // Find nodes with table:table content
   // It should be the only table
-  std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result =
+  std::pair<boost::property_tree::ptree::const_assoc_iterator, boost::property_tree::ptree::const_assoc_iterator> result =
       tree2.equal_range(nodeTable);
-  for( ptree::const_assoc_iterator it = result.first; it != result.second && !flag; ++it )
+  for( boost::property_tree::ptree::const_assoc_iterator it = result.first; it != result.second && !flag; ++it )
   {
     std::cout << "found: " << it->first << std::endl;
 
     // get xmlattr called table:name in node
 
-    std::pair<ptree::const_assoc_iterator, ptree::const_assoc_iterator> result2 =
+    std::pair<boost::property_tree::ptree::const_assoc_iterator, boost::property_tree::ptree::const_assoc_iterator> result2 =
         it->second.get_child(xmlattr).equal_range(nodeTableName);
-    for( ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
+    for( boost::property_tree::ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
     {
 //        std::cout << "  attr: " << it2->first << " => " << it2->second.data() << std::endl;
         if( it2->second.data() == tableName )
@@ -117,7 +117,7 @@ std::vector<xmlRow> ContentReader::getTableData(const std::string tableName) con
     // filter only rows
     // reuse result2
     result2 = it->second.equal_range(nodeTableRow);
-    for( ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
+    for( boost::property_tree::ptree::const_assoc_iterator it2 = result2.first; it2 != result2.second; ++it2 )
     {
       xmlRow tmpRow;
       unsigned int i = 0; // we expect 6 necessary rows only
@@ -125,7 +125,7 @@ std::vector<xmlRow> ContentReader::getTableData(const std::string tableName) con
       // filter only cells, read all necessary data
       // reuse result
       result = it2->second.equal_range(nodeTableCell);
-      for( ptree::const_assoc_iterator it3 = result.first; it3 != result.second; ++it3)
+      for( boost::property_tree::ptree::const_assoc_iterator it3 = result.first; it3 != result.second; ++it3)
       {
         try
         {
@@ -174,14 +174,14 @@ std::vector<xmlRow> ContentReader::getTableData(const std::string tableName) con
           ++i;
 
         }
-        catch(const ptree_bad_path &e)
+        catch(const boost::property_tree::ptree_bad_path &e)
         {
           std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
                << "ERROR. No value in cell. Skip the hall row." << std::endl
                << "Error message: " << e.what() << std::endl;
           break;
         }
-        catch(const bad_lexical_cast &e)
+        catch(const boost::bad_lexical_cast &e)
         {
           std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
                << "ERROR. Can't convert correctly value in cell. Skip the hall row." << std::endl

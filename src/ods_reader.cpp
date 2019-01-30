@@ -33,10 +33,10 @@ ODSReader::ODSReader(const std::string _odsFileName)
   pathToExtractedODS = tmpDir;
 
   // cleanup from previous data
-  remove_all(pathToExtractedODS);
+  std::filesystem::remove_all(pathToExtractedODS);
 
   // check file exists
-  if( !exists(_odsFileName) )
+  if( !std::filesystem::exists(_odsFileName) )
   {
     std::string errorMessage = std::string(FUNC_).append(": file doesn't exist ")
                           .append(_odsFileName);
@@ -44,7 +44,7 @@ ODSReader::ODSReader(const std::string _odsFileName)
   }
 
   // check temporary folder doesn't exist
-  if( exists(path(tmpDir)) )
+  if( std::filesystem::exists(std::filesystem::path(tmpDir)) )
   {
     std::string errorMessage = std::string(FUNC_).append(": temp directory already exist ")
                           .append(tmpDir);
@@ -52,7 +52,7 @@ ODSReader::ODSReader(const std::string _odsFileName)
   }
 
   // create temporary directory
-  if(!create_directories(tmpDir))
+  if(!std::filesystem::create_directories(tmpDir))
   {
     std::string errorMessage = std::string(FUNC_).append(": can't create directory ")
                           .append(tmpDir);
@@ -73,7 +73,7 @@ void ODSReader::extractFile() const
   if( extract_zip(odsFileName.c_str(), pathToExtractedODS.c_str()) )
   {
     // cleanup extracted files
-    remove_all(pathToExtractedODS);
+    std::filesystem::remove_all(pathToExtractedODS);
 
     std::string errorMessage = std::string(FUNC_).append(": can't extract file ")
                           .append(odsFileName).append(" to temp directory ")
@@ -97,7 +97,7 @@ std::string ODSReader::getPathToODS() const
 
 ODSReader::~ODSReader()
 {
-  remove_all(pathToExtractedODS);
+  std::filesystem::remove_all(pathToExtractedODS);
 }
 
 #undef DELIM

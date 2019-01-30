@@ -32,10 +32,6 @@
 #include "common_types.h"
 #include "ods_reader.h"
 
-using boost::property_tree::ptree;
-using boost::property_tree::ptree_bad_path;
-using boost::bad_lexical_cast;
-
 
 /**
  * @brief The ContentReader class For reading content.xml file from *.ods file
@@ -94,7 +90,7 @@ class ContentReader: public ODSReader
     /**
      * @brief tree special object contain the hole content.xml tree
      */
-    ptree tree;
+    boost::property_tree::ptree tree;
 };
 
 #endif
