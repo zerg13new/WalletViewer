@@ -28,10 +28,6 @@
 
 #include "algorithms.h"
 
-using std::string;
-using std::to_string;
-using std::runtime_error;
-using namespace std::filesystem;
 
 /**
  * @brief The ODSReader class for extracting content of *.ods file in
@@ -46,7 +42,7 @@ class ODSReader
       * @param _odsFileName full path to *.ods file name
       *        e.g. /tmp/test.ods
       */
-    ODSReader(const string _odsFileName);
+    ODSReader(const std::string _odsFileName);
 
     /**
       * @brief ~ODSReader remove tmpDir
@@ -57,12 +53,12 @@ class ODSReader
      * @brief getODSFileName return odsFileName
      * @return odsFileName
      */
-    string getODSFileName() const;
+    std::string getODSFileName() const;
     /**
      * @brief getPathToODS
      * @return path to extracted odsFileName file
      */
-    string getPathToODS() const;
+    std::string getPathToODS() const;
 
   private:
     /**
@@ -86,13 +82,13 @@ class ODSReader
     /**
      * @brief odsFileName filename of processd file
      */
-    string odsFileName;
+    std::string odsFileName;
 
     /**
      * @brief full path (without trailed /) to temp dir where *.ods file
      *        was extracted. Currently it is /tmp/uid/filename.ods/
      */
-    string pathToExtractedODS;
+    std::string pathToExtractedODS;
 };
 
 #endif

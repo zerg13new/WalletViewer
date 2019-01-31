@@ -26,10 +26,10 @@
 /**
   INTERNAL ROUTINES
 */
-static int safe_create_dir(const string &sPath);
-static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
-                                               date from,
-                                               date to,
+static int safe_create_dir(const std::string &sPath);
+static std::map<boost::gregorian::date, cashFlow> yearlyMonthlySimple(const std::vector<xmlRow> &data,
+                                               boost::gregorian::date from,
+                                               boost::gregorian::date to,
                                                perioud per);
 
 
@@ -37,30 +37,30 @@ static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
 /**
   EXTERNAL ROUTINES
  */
-vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
+std::vector<purchase> dailyCarts(const std::vector<xmlRow> &data, boost::gregorian::date from, boost::gregorian::date to)
 {
-  map<string, purchase*> tmpResult; /* map to fast search items from vector */
-  vector<purchase>       result;    /* resulted vector */
+  std::map<std::string, purchase*> tmpResult; /* map to fast search items from vector */
+  std::vector<purchase>       result;    /* resulted vector */
 
   // go through data
   for(auto it = data.begin(); it != data.end(); it++)
   {
     // make key string cashflow-source-date
-    string keyString = to_iso_extended_string(it->dateP) + it->cashflow + it->source;
+    std::string keyString = to_iso_extended_string(it->dateP) + it->cashflow + it->source;
 
     // check that item in date range
     if( it->dateP < from || it->dateP > to )
     {
       /*
-      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+      std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
            << "NOTICE. item doesn't fit to date range. Skip this row."
-           << endl;
+           << std::endl;
        */
       continue;
     }
 
     // check if map already has such date item
-    map<string, purchase*>::iterator itFound = tmpResult.find(keyString);
+    std::map<std::string, purchase*>::iterator itFound = tmpResult.find(keyString);
 
     // if nothing was found insert item
     if( itFound == tmpResult.end() )
@@ -74,9 +74,9 @@ vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
       }
       else
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Unknown cashflow type. Skip this row."
-             << endl;
+             << std::endl;
         continue;
       }
 
@@ -84,15 +84,15 @@ vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
       result.push_back(tmpPurchase);
 
       // add to map and check errors
-      pair<map<string, purchase*>::iterator, bool> finish =
-          tmpResult.insert(pair<string, purchase*>(keyString, &(result.back())));
+      std::pair<std::map<std::string, purchase*>::iterator, bool> finish =
+          tmpResult.insert(std::pair<std::string, purchase*>(keyString, &(result.back())));
 
       // if insert fail
       if(!finish.second)
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Handling of " << *it << " failed."
-             << endl;
+             << std::endl;
       } // END if
     }
     else
@@ -105,9 +105,9 @@ vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
       }
       else
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Unknown cashflow type. Skip this row."
-             << endl;
+             << std::endl;
         continue;
       }
 
@@ -121,32 +121,32 @@ vector<purchase> dailyCarts(const vector<xmlRow> &data, date from, date to)
 }
 
 
-map<date, cashFlow> monthlySimple(const vector<xmlRow> &data, date from, date to)
+std::map<boost::gregorian::date, cashFlow> monthlySimple(const std::vector<xmlRow> &data, boost::gregorian::date from, boost::gregorian::date to)
 {
   return yearlyMonthlySimple(data, from, to, monthP);
 }
 
 
-map<date, cashFlow> yearlySimple(const vector<xmlRow> &data, date from, date to)
+std::map<boost::gregorian::date, cashFlow> yearlySimple(const std::vector<xmlRow> &data, boost::gregorian::date from, boost::gregorian::date to)
 {
   return yearlyMonthlySimple(data, from, to, yearP);
 }
 
 
-list<list<oneItemP>>
-       theMostExpensiveOutflowItemsPerUnit(const vector<xmlRow> &data,
+std::list<std::list<oneItemP>>
+       theMostExpensiveOutflowItemsPerUnit(const std::vector<xmlRow> &data,
                                            long int numberofRanksToReturn,
-                                           date from,
-                                           date to)
+                                           boost::gregorian::date from,
+                                           boost::gregorian::date to)
 {
-  list<list<oneItemP>> result;         // result
+  std::list<std::list<oneItemP>> result;         // result
 
   // sanity check
   assert(numberofRanksToReturn >= -1);
   if(numberofRanksToReturn == 0)
     return result;
 
-  vector<xmlRow> tmpData = data; //
+  std::vector<xmlRow> tmpData = data; //
   bool           isFound = false;
 
   // sort
@@ -159,9 +159,9 @@ list<list<oneItemP>>
     if( it->dateP < from || it->dateP > to )
     {
       /*
-      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+      std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
            << "NOTICE. item doesn't fit to date range. Skip this row."
-           << endl;
+           << std::endl;
        */
       continue;
     }
@@ -202,7 +202,7 @@ list<list<oneItemP>>
 
     // add new item to the end
     // it is new rank of items
-    list<oneItemP> tmpResult;
+    std::list<oneItemP> tmpResult;
     oneItemP tmpItem = {it->dateP, it->item, it->price};
     tmpResult.push_back(tmpItem);
     result.push_back(tmpResult);
@@ -218,14 +218,14 @@ list<list<oneItemP>>
 }
 
 
-list<list<oneItemA>>
-      theMostConsumedItems(const vector<xmlRow> &data,
+std::list<std::list<oneItemA>>
+      theMostConsumedItems(const std::vector<xmlRow> &data,
                            long int numberofRanksToReturn,
-                           date from,
-                           date to )
+                           boost::gregorian::date from,
+                           boost::gregorian::date to )
 {
-  list<list<oneItemA>> result;    //
-  vector<oneItemA>     resultTmp; // sort list of items
+  std::list<std::list<oneItemA>> result;    //
+  std::vector<oneItemA>     resultTmp; // sort list of items
 
   // sanity check
   assert(numberofRanksToReturn >= -1);
@@ -239,9 +239,9 @@ list<list<oneItemA>>
     if( it->dateP < from || it->dateP > to )
     {
       /*
-      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+      std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
            << "NOTICE. item doesn't fit to date range. Skip this row."
-           << endl;
+           << std::endl;
        */
       continue;
     }
@@ -316,20 +316,20 @@ list<list<oneItemA>>
 }
 
 
-ostream &operator <<(ostream &os, const xmlRow &row)
+std::ostream &operator <<(std::ostream &os, const xmlRow &row)
 {
-    os << "cashFlow: " << row.cashflow << endl
-       << "source: " << row.source << endl
-       << "dateP: " << to_iso_extended_string(row.dateP) << endl
-       << "item: " << row.item << endl
-       << "price: " << row.price << endl
+    os << "cashFlow: " << row.cashflow << std::endl
+       << "source: " << row.source << std::endl
+       << "dateP: " << to_iso_extended_string(row.dateP) << std::endl
+       << "item: " << row.item << std::endl
+       << "price: " << row.price << std::endl
        << "amount: " << row.amount;
 
     return os;
 }
 
 
-void sortDateSource(vector<xmlRow> &rows, const int sortOrder)
+void sortDateSource(std::vector<xmlRow> &rows, const int sortOrder)
 {
   if( 1 == sortOrder ) // ascending
     sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
@@ -340,12 +340,12 @@ void sortDateSource(vector<xmlRow> &rows, const int sortOrder)
           return ( a.dateP != b.dateP ) ? (a.dateP > b.dateP) : (a.source > b.source);
         });
   else
-    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+    std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
          << "ERROR: unknown order";
 }
 
 
-void sortPrice(vector<xmlRow> &rows, const int sortOrder)
+void sortPrice(std::vector<xmlRow> &rows, const int sortOrder)
 {
   if( 1 == sortOrder ) // ascending
     sort(rows.begin(), rows.end(),[](xmlRow a, xmlRow b){
@@ -356,11 +356,11 @@ void sortPrice(vector<xmlRow> &rows, const int sortOrder)
           return (a.price > b.price);
         });
   else
-    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+    std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
          << "ERROR: unknown order";
 }
 
-void sortAmount(vector<oneItemA> &rows, const int sortOrder)
+void sortAmount(std::vector<oneItemA> &rows, const int sortOrder)
 {
   if( 1 == sortOrder ) // ascending
     sort(rows.begin(), rows.end(),[](oneItemA a, oneItemA b){
@@ -371,14 +371,14 @@ void sortAmount(vector<oneItemA> &rows, const int sortOrder)
           return (a.amount > b.amount);
         });
   else
-    cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+    std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
          << "ERROR: unknown order";
 }
 
 
 int extract_zip(const char *archive, const char *destination)
 {
-  const string ME_("extract_zip");
+  const std::string ME_("extract_zip");
   struct zip      *za;
   struct zip_file *zf;
   struct zip_stat sb;
@@ -391,7 +391,7 @@ int extract_zip(const char *archive, const char *destination)
   if((za = zip_open(archive, 0, &err)) == NULL)
   {
       zip_error_to_str(buf, sizeof(buf), err, errno);
-      cerr << ME_ << ": can't open zip archive " << archive
+      std::cerr << ME_ << ": can't open zip archive " << archive
            << ", buf " << buf;
       return 1;
   }
@@ -400,22 +400,22 @@ int extract_zip(const char *archive, const char *destination)
   {
     if( zip_stat_index(za, i, 0, &sb) )
     {
-      cerr << ME_ << ": zip_stat_index failed" << endl;
+      std::cerr << ME_ << ": zip_stat_index failed" << std::endl;
     }
     else
     {
       /*
-      cout << endl
-           << "Name: " << sb.name << endl
-           << "Size:" << sb.size << endl
+      std::cout << std::endl
+           << "Name: " << sb.name << std::endl
+           << "Size:" << sb.size << std::endl
            << "mtime: " << (unsigned int)sb.mtime
-           << endl;
+           << std::endl;
            */
 
       // create directory if it is necessary
       if( strstr(sb.name, "/") )
       {
-        string tmpDir(destination);
+        std::string tmpDir(destination);
         tmpDir.append("/").append(sb.name);
 
         if( safe_create_dir(tmpDir) )
@@ -426,18 +426,18 @@ int extract_zip(const char *archive, const char *destination)
         zf = zip_fopen_index(za, i, 0);
         if(!zf)
         {
-          cerr << ME_ << ": zip_fopen_index failed, zf = " << zf << endl;
+          std::cerr << ME_ << ": zip_fopen_index failed, zf = " << zf << std::endl;
           return 3;
         }
 
-        string fullPathFileName(destination);
+        std::string fullPathFileName(destination);
         fullPathFileName.append("/").append(sb.name);
 
         fd = open(fullPathFileName.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0644);
         if(fd < 0)
         {
-          cerr << ME_ << ": open file " << fullPathFileName.c_str()
-               << " from archive " << archive << " failed, fd = " << fd << endl;
+          std::cerr << ME_ << ": open file " << fullPathFileName.c_str()
+               << " from archive " << archive << " failed, fd = " << fd << std::endl;
           return 4;
         }
 
@@ -447,7 +447,7 @@ int extract_zip(const char *archive, const char *destination)
           len = zip_fread(zf, buf, 100);
           if(len < 0)
           {
-            cerr << ME_ << ": zip_fread failed, len = " << len << endl;
+            std::cerr << ME_ << ": zip_fread failed, len = " << len << std::endl;
             return 5;
           }
           write(fd, buf, len);
@@ -463,7 +463,7 @@ int extract_zip(const char *archive, const char *destination)
  
   if(zip_close(za) == -1)
   {
-    cerr << ME_ << ": can't close zip archive " << archive << endl;
+    std::cerr << ME_ << ": can't close zip archive " << archive << std::endl;
     return 10;
   }
 
@@ -471,7 +471,7 @@ int extract_zip(const char *archive, const char *destination)
 }
 
 
-unsigned int mb_length(const string s)
+unsigned int mb_length(const std::string s)
 {
   return (s.length() - count_if(s.begin(), s.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
 }
@@ -482,22 +482,22 @@ unsigned int mb_length(const string s)
  * @param sPath path without trailed "/"
  * @return 0 for success or other positive value for failure
  */
-static int safe_create_dir(const string &sPath)
+static int safe_create_dir(const std::string &sPath)
 {
-  const string ME_ = "safe_create_dir";
+  const std::string ME_ = "safe_create_dir";
 
   size_t          pos = 1;
 
-  while( string::npos != (pos = sPath.find("/", pos)) )
+  while( std::string::npos != (pos = sPath.find("/", pos)) )
   {
-    string tmpPath(string(sPath, 0, pos));
+    std::string tmpPath(std::string(sPath, 0, pos));
     pos++;
 
     if(mkdir(tmpPath.c_str(), 0755) < 0)
     {
       if(errno != EEXIST)
       {
-        cerr << ME_ << ": mkdir failed for " << tmpPath.c_str() << endl;
+        std::cerr << ME_ << ": mkdir failed for " << tmpPath.c_str() << std::endl;
         return 1;
       }
     }
@@ -516,42 +516,42 @@ static int safe_create_dir(const string &sPath)
  * @param toDate up date bound of processed data
  * @return map of inflow/outflow for every perioud (month, year)
  */
-static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
-                                               date from,
-                                               date to,
+static std::map<boost::gregorian::date, cashFlow> yearlyMonthlySimple(const std::vector<xmlRow> &data,
+                                               boost::gregorian::date from,
+                                               boost::gregorian::date to,
                                                perioud per)
 {
-  map<date, cashFlow> result;
+  std::map<boost::gregorian::date, cashFlow> result;
 
   // go through data
   for(auto it = data.begin(); it != data.end(); it++)
   {
-    date::year_type  tmpYear  = it->dateP.year();
-    date             tmpStartDate;
+    boost::gregorian::date::year_type  tmpYear  = it->dateP.year();
+    boost::gregorian::date             tmpStartDate;
 
     if( monthP == per )
     {
-      date::month_type tmpMonth = it->dateP.month();
-      tmpStartDate = date(tmpYear, tmpMonth, 1); // first day in processed month
+      boost::gregorian::date::month_type tmpMonth = it->dateP.month();
+      tmpStartDate = boost::gregorian::date(tmpYear, tmpMonth, 1); // first day in processed month
     }
     else if( yearP == per )
     {
-      tmpStartDate = date(tmpYear, 1, 1); // first day in prcessed year
+      tmpStartDate = boost::gregorian::date(tmpYear, 1, 1); // first day in prcessed year
     }
 
     // check that item in date range
     if( it->dateP < from || it->dateP > to )
     {
       /*
-      cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+      std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
            << "NOTICE. item doesn't fit to date range. Skip this row."
-           << endl;
+           << std::endl;
        */
       continue;
     }
 
     // check if map already has such date item
-    map<date, cashFlow>::iterator itFound = result.find(tmpStartDate);
+    std::map<boost::gregorian::date, cashFlow>::iterator itFound = result.find(tmpStartDate);
 
     // if nothing was found insert item
     if( itFound == result.end() )
@@ -568,22 +568,22 @@ static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
       }
       else
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Unknown cashflow type. Skip this row."
-             << endl;
+             << std::endl;
         continue;
       }
 
       // check errors
-      pair<map<date, cashFlow>::iterator, bool> finish =
-          result.insert(pair<date, cashFlow>(tmpStartDate, tmpCashFlow));
+      std::pair<std::map<boost::gregorian::date, cashFlow>::iterator, bool> finish =
+          result.insert(std::pair<boost::gregorian::date, cashFlow>(tmpStartDate, tmpCashFlow));
 
       // if insert fail
       if(!finish.second)
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Handling of " << *it << " failed."
-             << endl;
+             << std::endl;
       } // END if
     }
     else
@@ -599,9 +599,9 @@ static map<date, cashFlow> yearlyMonthlySimple(const vector<xmlRow> &data,
       }
       else
       {
-        cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << endl
+        std::cerr << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl
              << "ERROR. Unknown cashflow type. Skip this row."
-             << endl;
+             << std::endl;
         continue;
       }
     } // END if

@@ -32,27 +32,20 @@
 #include "common_types.h"
 #include "ods_reader.h"
 
-using std::string;
-using std::vector;
-using std::pair;
-using boost::property_tree::ptree;
-using boost::property_tree::ptree_bad_path;
-using boost::bad_lexical_cast;
-
 
 /**
  * @brief The ContentReader class For reading content.xml file from *.ods file
  */
 class ContentReader: public ODSReader
 {
-  friend ostream& operator <<(ostream &os, const xmlRow &row);
+  friend std::ostream& operator <<(std::ostream &os, const xmlRow &row);
   public:
   /**
      * @brief ContentReader main constructor
      * @param _odsFileName full path to ods.file
      *         e.g. /tmp/test.ods
      */
-    ContentReader(const string _odsFileName);
+    ContentReader(const std::string _odsFileName);
 
     virtual ~ContentReader();
 
@@ -60,21 +53,21 @@ class ContentReader: public ODSReader
      * @brief getContentName Get content file name
      * @return content.xml string
      */
-    string getContentName() const;
+    std::string getContentName() const;
 
     /**
      * @brief getTablesList Get list of tables from content.xml file.
      *        E.g. Dave, Adriana
      * @return vector of table names string
      */
-    vector<string> getTablesList() const;
+    std::vector<std::string> getTablesList() const;
 
     /**
      * @brief getTableData getTable Get data from tableName to further processing
      * @param tableName name of table to be read
      * @return vector of xmlRow
      */
-    vector<xmlRow> getTableData(const string tableName) const;
+    std::vector<xmlRow> getTableData(const std::string tableName) const;
 
   private:
     /**
@@ -92,12 +85,12 @@ class ContentReader: public ODSReader
     /**
      * @brief contentFileName content.xml
      */
-    const string contentFileName;
+    const std::string contentFileName;
 
     /**
      * @brief tree special object contain the hole content.xml tree
      */
-    ptree tree;
+    boost::property_tree::ptree tree;
 };
 
 #endif

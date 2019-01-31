@@ -30,14 +30,9 @@
 #include <boost/date_time/gregorian/parsers.hpp>
 #include <boost/date_time/gregorian/formatters.hpp>
 
-using std::string;
-using boost::property_tree::ptree;
-using boost::gregorian::date;
-using boost::gregorian::from_string;
-using boost::gregorian::to_iso_extended_string;
 
 const unsigned int numCellsInRow = 6;
-const string       cashFlowList [] = { "приход", "расход" };
+const std::string       cashFlowList [] = { "приход", "расход" };
 
 
 /**
@@ -45,10 +40,10 @@ const string       cashFlowList [] = { "приход", "расход" };
  */
 struct xmlRow
 {
-  string cashflow; // приход/расход
-  string source;   // Лента, eurospar e.t.c
-  date dateP;      // date of purchase (ex 2017-02-12)
-  string item;     // what is bought
+  std::string cashflow; // приход/расход
+  std::string source;   // Лента, eurospar e.t.c
+  boost::gregorian::date dateP;      // date of purchase (ex 2017-02-12)
+  std::string item;     // what is bought
   float price;     // how much does it cost
   float amount;    // how many items are bought
 };
@@ -58,14 +53,14 @@ struct xmlRow
  */
 struct oneItemP
 {
-  date dateP;  // date of purchase (ex 2017-02-12)
-  string item; // what is bought
+  boost::gregorian::date dateP;  // date of purchase (ex 2017-02-12)
+  std::string item; // what is bought
   float price; // how much does it cost
 };
 
 struct oneItemA
 {
-  string item;  // what is bought
+  std::string item;  // what is bought
   float amount; // how many items is bought
 };
 
@@ -75,9 +70,9 @@ struct oneItemA
  */
 struct purchase
 {
-  string cashflow; // inflow/outflow
-  string source;   // Лента, eurospar
-  date dateP;      // date of purchase (ex 2017-02-12)
+  std::string cashflow; // inflow/outflow
+  std::string source;   // Лента, eurospar
+  boost::gregorian::date dateP;      // date of purchase (ex 2017-02-12)
   float flow;      // common amount of money for this purchase
 };
 

@@ -36,20 +36,6 @@
 #include <cmath>
 #include "common_types.h"
 
-using std::pair;
-using std::map;
-using std::vector;
-using std::list;
-using std::cout;
-using std::cin;
-using std::cerr;
-using std::endl;
-using std::ostream;
-using std::sort;
-using std::string;
-using boost::gregorian::date;
-
-
 
 /**
  * @brief dailyCarts calculate each cart (all purchases) for each day in
@@ -59,9 +45,9 @@ using boost::gregorian::date;
  * @param toDate up date bound of processed data
  * @return vector of purchase
  */
-vector<purchase> dailyCarts(const vector<xmlRow> &data,
-                                  date fromDate = date(1970, 01, 01),
-                                  date toDate = date(2100, 01, 01));
+std::vector<purchase> dailyCarts(const std::vector<xmlRow> &data,
+                                  boost::gregorian::date fromDate = boost::gregorian::date(1970, 01, 01),
+                                  boost::gregorian::date toDate = boost::gregorian::date(2100, 01, 01));
 
 /**
  * @brief monthlySimple calculate cashflow for every month for perioud of time
@@ -73,9 +59,9 @@ vector<purchase> dailyCarts(const vector<xmlRow> &data,
  *         note: date is a first date of each found month.
  *         E.g. 2017.01.01 for 2017.01.05
  */
-map<date, cashFlow> monthlySimple(const vector<xmlRow> &data,
-                              date fromDate = date(1970, 01, 01),
-                              date toDate = date(2100, 01, 01));
+std::map<boost::gregorian::date, cashFlow> monthlySimple(const std::vector<xmlRow> &data,
+                              boost::gregorian::date fromDate = boost::gregorian::date(1970, 01, 01),
+                              boost::gregorian::date toDate = boost::gregorian::date(2100, 01, 01));
 
 /**
  * @brief yearlySimple calculate cashflow for every year for perioud of time
@@ -85,9 +71,9 @@ map<date, cashFlow> monthlySimple(const vector<xmlRow> &data,
  * @param toDate up date bound of processed data
  * @return map of date=>cashFlow elements for every year for requested perioud
  */
-map<date, cashFlow> yearlySimple(const vector<xmlRow> &data,
-                              date fromDate = date(1970, 01, 01),
-                              date toDate = date(2100, 01, 01));
+std::map<boost::gregorian::date, cashFlow> yearlySimple(const std::vector<xmlRow> &data,
+                              boost::gregorian::date fromDate = boost::gregorian::date(1970, 01, 01),
+                              boost::gregorian::date toDate = boost::gregorian::date(2100, 01, 01));
 
 /**
  * @brief theMostExpensiveOutflowItemsPerUnit return most expensive outflow items from data
@@ -105,11 +91,11 @@ map<date, cashFlow> yearlySimple(const vector<xmlRow> &data,
  *                [numberofItemsToReturn - 1] - the last the most expensive items ({bread, 5$})
  *                Each rank position is a order of items with the same price
  */
-list<list<oneItemP>>
-      theMostExpensiveOutflowItemsPerUnit(const vector<xmlRow> &data,
+std::list<std::list<oneItemP>>
+      theMostExpensiveOutflowItemsPerUnit(const std::vector<xmlRow> &data,
                                           long int numberofRanksToReturn = -1,
-                                          date fromDate = date(1970, 01, 01),
-                                          date toDate = date(2100, 01, 01));
+                                          boost::gregorian::date fromDate = boost::gregorian::date(1970, 01, 01),
+                                          boost::gregorian::date toDate = boost::gregorian::date(2100, 01, 01));
 
 /**
  * @brief theMostConsumedItems returns most consumed items from data
@@ -123,11 +109,11 @@ list<list<oneItemP>>
  *        number of items because the hall scope of data will be processed anyway.
  *        Caller should decide how many items necessary after function execution.
  */
-list<list<oneItemA>>
-      theMostConsumedItems(const vector<xmlRow> &data,
+std::list<std::list<oneItemA>>
+      theMostConsumedItems(const std::vector<xmlRow> &data,
                            long int numberofRanksToReturn = -1,
-                           date fromDate = date(1970, 01, 01),
-                           date toDate = date(2100, 01, 01));
+                           boost::gregorian::date fromDate = boost::gregorian::date(1970, 01, 01),
+                           boost::gregorian::date toDate = boost::gregorian::date(2100, 01, 01));
 
 
 /**
@@ -146,34 +132,34 @@ int extract_zip(const char *zipArchiveName, const char *destination);
  * @param row xmlRow struct
  * @return ref to output stream
  */
-ostream &operator <<(ostream &os, const xmlRow &row);
+std::ostream &operator <<(std::ostream &os, const xmlRow &row);
 
 /**
  * @brief sortDateSource to sort vector of xml rows in order by date + source
  * @param rows vector of xmlRow rows to sort
  * @param sortOrder 1 - ascending (default), 2 - descending
  */
-void sortDateSource(vector<xmlRow> &rows, const int sortOrder = 1);
+void sortDateSource(std::vector<xmlRow> &rows, const int sortOrder = 1);
 
 /**
  * @brief sortPrice to sort vector of xml rows in order by price
  * @param rows vector of xmlRow rows to sort
  * @param sortOrder 1 - ascending (default), 2 - descending
  */
-void sortPrice(vector<xmlRow> &rows, const int sortOrder = 1);
+void sortPrice(std::vector<xmlRow> &rows, const int sortOrder = 1);
 
 /**
  * @brief sortAmount to sort vector of oneItemA in order by amount
  * @param rows vector of oneItemA to sort
  * @param sortOrder 1 - ascending , 2 - descending (default)
  */
-void sortAmount(vector<oneItemA> &rows, const int sortOrder = 2);
+void sortAmount(std::vector<oneItemA> &rows, const int sortOrder = 2);
 
 /**
  * @brief mb_length Find length of multibyte utf8 string
  * @param s multibyte string in utf8
  * @return length utf8 string
  */
-unsigned int mb_length(const string s);
+unsigned int mb_length(const std::string s);
 
 #endif
