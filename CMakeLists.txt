@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12.1)
 
 project(WalletViewer
     VERSION 1.1.0.0
-    DESCRIPTION "Project to show many flow in your pocket"
+    DESCRIPTION "Project to show money flow in your pocket"
     HOMEPAGE_URL "https://github.com/zerg13new/WalletViewer"
     LANGUAGES CXX)
 
@@ -70,6 +70,9 @@ set(SRC
 
 target_sources(walletviewer
     PRIVATE ${SRC})
+
+set_target_properties(walletviewer
+	PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 install(TARGETS walletviewer
     CONFIGURATIONS Release
